@@ -12,6 +12,7 @@ on:
           - new_candidate
           - rescheduled
           - cancelled
+          - reminder_2h
         default: new_candidate
 
       full_name:
@@ -134,17 +135,29 @@ jobs:
                   f"Телефон: {phone}\n"
                   f"Специальность: {specialty}\n"
                   f"Объект: {site_name}\n"
-                  f"Встреча: {old_meeting or 'Не указана'}\n"
+                  f"Встреча: {old_meeting or meeting or 'Не указана'}\n"
                   f"Причина: {reason or 'Не указана'}"
+              )
+
+          elif event == "reminder_2h":
+              text = (
+                  "⏰ НАПОМИНАНИЕ: КАНДИДАТ ЧЕРЕЗ 2 ЧАСА\n\n"
+                  f"ФИО: {name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Объект: {site_name}\n"
+                  f"Встреча: {meeting or 'Не указана'}\n\n"
+                  "Не забудьте связаться с кандидатом "
+                  "и подтвердить его приезд."
               )
 
           else:
               raise ValueError("Неизвестный тип события: " + event)
 
-          if source and event != "new_candidate":
+          if source and event not in ("new_candidate", "reminder_2h"):
               text += f"\nИсточник: {source}"
 
-          if comment and event != "new_candidate":
+          if comment and event not in ("new_candidate", "reminder_2h"):
               text += f"\nКомментарий: {comment}"
 
           context = ssl.create_default_context(cafile="russiantrustedca.pem")
