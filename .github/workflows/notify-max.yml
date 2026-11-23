@@ -1,0 +1,87 @@
+
+name: Send candidate to MAX
+
+on:
+  workflow_dispatch:
+    inputs:
+      full_name:
+        description: "ФИО кандидата"
+        required: true
+        type: string
+      phone:
+        description: "Телефон"
+        required: true
+        type: string
+      specialty:
+        description: "Специальность"
+        required: true
+        type: string
+      meeting:
+        description: "Дата и время встречи"
+        required: false
+        type: string
+      source:
+        description: "Источник"
+        required: false
+        type: string
+      comment:
+        description: "Комментарий"
+        required: false
+        type: string
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download certificate
+        run: |
+          curl --fail --silent --show-error --location \
+            https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
+            -o russiantrustedca.pem
+          echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
+
+      - name: Send candidate to MAX
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
+          FULL_NAME: ${{ inputs.full_name }}
+          PHONE: ${{ inputs.phone }}
+          SPECIALTY: ${{ inputs.specialty }}
+          MEETING: ${{ inputs.meeting }}
+          SOURCE: ${{ inputs.source }}
+          COMMENT: ${{ inputs.comment }}
+        run: |
+          python3 - <<'PY'
+          import os, ssl, json, urllib.request
+
+          text = (
+              "🆕 НОВЫЙ КАНДИДАТ\n\n"
+              f"ФИО: {os.environ['FULL_NAME']}\n"
+              f"Телефон: {os.environ['PHONE']}\n"
+              f"Специальность: {os.environ['SPECIALTY']}\n"
+              f"Встреча: {os.environ.get('MEETING') or 'Не указана'}\n"
+              f"Источник: {os.environ.get('SOURCE') or 'Не указан'}"
+          )
+
+          comment = os.environ.get("COMMENT", "")
+          if comment:
+              text += f"\nКомментарий: {comment}"
+
+          context = ssl.create_default_context(cafile="russiantrustedca.pem")
+          url = "https://platform-api2.max.ru/messages?chat_id=" + os.environ["MAX_CHAT_ID"]
+
+          data = json.dumps({"text": text}).encode("utf-8")
+
+          request = urllib.request.Request(
+              url,
+              data=data,
+              method="POST",
+              headers={
+                  "Authorization": os.environ["MAX_BOT_TOKEN"],
+                  "Content-Type": "application/json"
+              }
+          )
+
+          with urllib.request.urlopen(request, context=context, timeout=30) as response:
+              print("MAX ответил, HTTP:", response.status)
+          PY
