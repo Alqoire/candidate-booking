@@ -1,0 +1,45 @@
+
+name: MAX chat ID test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download certificate
+        run: |
+          curl --fail --silent --show-error --location \
+            https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
+            -o russiantrustedca.pem
+          echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
+
+      - name: Get chat ID
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, ssl, json, urllib.request
+
+          context = ssl.create_default_context(cafile="russiantrustedca.pem")
+          request = urllib.request.Request(
+              "https://platform-api2.max.ru/updates?limit=100&timeout=0",
+              headers={"Authorization": os.environ["MAX_BOT_TOKEN"]}
+          )
+
+          with urllib.request.urlopen(request, context=context, timeout=30) as response:
+              data = json.loads(response.read().decode("utf-8"))
+
+          updates = data.get("updates", [])
+          print("Количество событий:", len(updates))
+
+          for item in updates:
+              message = item.get("message") or {}
+              recipient = message.get("recipient") or {}
+              print(json.dumps({
+                  "update_type": item.get("update_type"),
+                  "chat_id": item.get("chat_id") or recipient.get("chat_id"),
+                  "is_channel": item.get("is_channel")
+              }, ensure_ascii=False))
+          PY
