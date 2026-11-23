@@ -4,34 +4,60 @@ name: Send candidate to MAX
 on:
   workflow_dispatch:
     inputs:
+      event_type:
+        description: "Тип события"
+        required: true
+        type: choice
+        options:
+          - new_candidate
+          - rescheduled
+          - cancelled
+        default: new_candidate
+
       full_name:
         description: "ФИО кандидата"
         required: true
         type: string
+
       phone:
         description: "Телефон"
         required: true
         type: string
+
       specialty:
         description: "Специальность"
         required: true
         type: string
+
       meeting:
-        description: "Дата и время встречи"
+        description: "Новая дата и время встречи"
         required: false
         type: string
+
+      old_meeting:
+        description: "Старая дата и время встречи"
+        required: false
+        type: string
+
       source:
         description: "Источник"
         required: false
         type: string
+
       comment:
         description: "Комментарий"
+        required: false
+        type: string
+
+      reason:
+        description: "Причина изменения"
         required: false
         type: string
 
 jobs:
   send:
     runs-on: ubuntu-latest
+
     steps:
       - name: Download certificate
         run: |
@@ -40,35 +66,79 @@ jobs:
             -o russiantrustedca.pem
           echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
 
-      - name: Send candidate to MAX
+      - name: Send notification to MAX
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
           MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
+          EVENT_TYPE: ${{ inputs.event_type }}
           FULL_NAME: ${{ inputs.full_name }}
           PHONE: ${{ inputs.phone }}
           SPECIALTY: ${{ inputs.specialty }}
           MEETING: ${{ inputs.meeting }}
+          OLD_MEETING: ${{ inputs.old_meeting }}
           SOURCE: ${{ inputs.source }}
           COMMENT: ${{ inputs.comment }}
+          REASON: ${{ inputs.reason }}
+
         run: |
           python3 - <<'PY'
           import os, ssl, json, urllib.request
 
-          text = (
-              "🆕 НОВЫЙ КАНДИДАТ\n\n"
-              f"ФИО: {os.environ['FULL_NAME']}\n"
-              f"Телефон: {os.environ['PHONE']}\n"
-              f"Специальность: {os.environ['SPECIALTY']}\n"
-              f"Встреча: {os.environ.get('MEETING') or 'Не указана'}\n"
-              f"Источник: {os.environ.get('SOURCE') or 'Не указан'}"
-          )
-
+          event = os.environ["EVENT_TYPE"]
+          name = os.environ["FULL_NAME"]
+          phone = os.environ["PHONE"]
+          specialty = os.environ["SPECIALTY"]
+          meeting = os.environ.get("MEETING", "")
+          old_meeting = os.environ.get("OLD_MEETING", "")
+          reason = os.environ.get("REASON", "")
+          source = os.environ.get("SOURCE", "")
           comment = os.environ.get("COMMENT", "")
-          if comment:
-              text += f"\nКомментарий: {comment}"
+
+          if event == "new_candidate":
+              text = (
+                  "🆕 НОВЫЙ КАНДИДАТ\n\n"
+                  f"ФИО: {name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Встреча: {meeting or 'Не указана'}\n"
+                  f"Источник: {source or 'Не указан'}"
+              )
+
+              if comment:
+                  text += f"\nКомментарий: {comment}"
+
+          elif event == "rescheduled":
+              text = (
+                  "🔄 ВСТРЕЧА ПЕРЕНЕСЕНА\n\n"
+                  f"ФИО: {name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n\n"
+                  f"Было: {old_meeting or 'Не указано'}\n"
+                  f"Стало: {meeting or 'Не указано'}\n\n"
+                  f"Причина: {reason or 'Не указана'}\n"
+                  "Объект: ЖК «Светский лес»"
+              )
+
+          elif event == "cancelled":
+              text = (
+                  "❌ ВСТРЕЧА ОТМЕНЕНА\n\n"
+                  f"ФИО: {name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Встреча: {old_meeting or 'Не указана'}\n"
+                  f"Причина: {reason or 'Не указана'}\n"
+                  "Объект: ЖК «Светский лес»"
+              )
+
+          else:
+              raise ValueError("Неизвестный тип события: " + event)
 
           context = ssl.create_default_context(cafile="russiantrustedca.pem")
-          url = "https://platform-api2.max.ru/messages?chat_id=" + os.environ["MAX_CHAT_ID"]
+
+          url = (
+              "https://platform-api2.max.ru/messages?chat_id="
+              + os.environ["MAX_CHAT_ID"]
+          )
 
           data = json.dumps({"text": text}).encode("utf-8")
 
