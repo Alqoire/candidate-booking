@@ -1,89 +1,83 @@
 
-name: Send candidate to MAX
+name: MAX chat ID test
 
 on:
   workflow_dispatch:
-    inputs:
-      full_name:
-        description: "ФИО кандидата"
-        required: true
-        type: string
-      phone:
-        description: "Телефон"
-        required: true
-        type: string
-      specialty:
-        description: "Специальность"
-        required: true
-        type: string
-      meeting:
-        description: "Дата и время встречи"
-        required: true
-        type: string
-      source:
-        description: "Источник кандидата"
-        required: false
-        default: "Не указан"
-        type: string
-      comment:
-        description: "Комментарий"
-        required: false
-        default: "Нет"
-        type: string
 
 jobs:
-  send-message:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download certificate
+      - name: Download and verify certificate
         run: |
           curl --fail --silent --show-error --location \
             https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
             -o russiantrustedca.pem
+
           echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
 
-      - name: Send candidate notification
+      - name: Check MAX subscriptions and updates
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
-          MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
-          FULL_NAME: ${{ inputs.full_name }}
-          PHONE: ${{ inputs.phone }}
-          SPECIALTY: ${{ inputs.specialty }}
-          MEETING: ${{ inputs.meeting }}
-          SOURCE: ${{ inputs.source }}
-          COMMENT: ${{ inputs.comment }}
         run: |
           python3 - <<'PY'
-          import os, ssl, json, urllib.request
+          import os
+          import json
+          import ssl
+          import urllib.request
+          import urllib.error
 
+          token = os.environ["MAX_BOT_TOKEN"]
           context = ssl.create_default_context(cafile="russiantrustedca.pem")
+          base = "https://platform-api2.max.ru"
 
-          message = (
-              "🆕 НОВЫЙ КАНДИДАТ\n\n"
-              f"ФИО: {os.environ['FULL_NAME']}\n"
-              f"Телефон: {os.environ['PHONE']}\n"
-              f"Специальность: {os.environ['SPECIALTY']}\n"
-              f"Встреча: {os.environ['MEETING']}\n"
-              f"Источник: {os.environ['SOURCE']}\n"
-              f"Комментарий: {os.environ['COMMENT']}"
-          )
+          def get(path):
+              request = urllib.request.Request(
+                  base + path,
+                  headers={"Authorization": token}
+              )
+              try:
+                  with urllib.request.urlopen(
+                      request, context=context, timeout=30
+                  ) as response:
+                      return response.status, response.read().decode("utf-8")
+              except urllib.error.HTTPError as error:
+                  return error.code, error.read().decode("utf-8")
 
-          data = json.dumps({"text": message}, ensure_ascii=False).encode("utf-8")
+          print("=== WEBHOOK SUBSCRIPTIONS ===")
+          status, body = get("/subscriptions")
+          print("HTTP:", status)
 
-          url = "https://platform-api2.max.ru/messages?chat_id=" + os.environ["MAX_CHAT_ID"]
+          if status == 200:
+              try:
+                  data = json.loads(body)
+                  print("Подписки получены.")
+                  print("Количество подписок:",
+                        len(data.get("subscriptions", [])))
+              except Exception:
+                  print("Ответ получен, но не удалось разобрать JSON.")
+          else:
+              print("Ответ MAX:", body[:1500])
 
-          request = urllib.request.Request(
-              url,
-              data=data,
-              method="POST",
-              headers={
-                  "Authorization": os.environ["MAX_BOT_TOKEN"],
-                  "Content-Type": "application/json"
-              }
-          )
+          print("\n=== LONG POLLING ===")
+          status, body = get("/updates?limit=100&timeout=0")
+          print("HTTP:", status)
 
-          with urllib.request.urlopen(request, context=context, timeout=30) as response:
-              print("HTTP:", response.status)
-              print("Уведомление успешно отправлено в MAX!")
+          try:
+              data = json.loads(body)
+              updates = data.get("updates", [])
+              print("Количество событий:", len(updates))
+              print("Marker:", data.get("marker"))
+
+              for item in updates:
+                  print(
+                      "Событие:",
+                      item.get("update_type"),
+                      "| chat_id:",
+                      item.get("chat_id")
+                  )
+          except Exception:
+              print("Ответ MAX:", body[:1500])
+
           PY
