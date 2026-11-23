@@ -4,73 +4,160 @@ name: Send candidate to MAX
 on:
   workflow_dispatch:
     inputs:
+      event_type:
+        description: "Тип события"
+        required: true
+        default: "new_candidate"
+        type: string
+
       full_name:
         description: "ФИО кандидата"
         required: true
         type: string
+
       phone:
         description: "Телефон"
         required: true
         type: string
+
       specialty:
         description: "Специальность"
         required: true
         type: string
+
       meeting:
-        description: "Дата и время встречи"
+        description: "Новая дата и время встречи"
         required: false
         type: string
+
+      old_meeting:
+        description: "Предыдущая дата и время встречи"
+        required: false
+        type: string
+
+      reason:
+        description: "Причина переноса или отмены"
+        required: false
+        type: string
+
       source:
-        description: "Источник"
+        description: "Источник кандидата"
         required: false
         type: string
+
       comment:
         description: "Комментарий"
+        required: false
+        type: string
+
+      object:
+        description: "Название объекта"
         required: false
         type: string
 
 jobs:
   send:
     runs-on: ubuntu-latest
+
     steps:
       - name: Download certificate
         run: |
           curl --fail --silent --show-error --location \
             https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
             -o russiantrustedca.pem
+
           echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
 
-      - name: Send candidate to MAX
+      - name: Send notification to MAX
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
           MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
+
+          EVENT_TYPE: ${{ inputs.event_type }}
           FULL_NAME: ${{ inputs.full_name }}
           PHONE: ${{ inputs.phone }}
           SPECIALTY: ${{ inputs.specialty }}
           MEETING: ${{ inputs.meeting }}
+          OLD_MEETING: ${{ inputs.old_meeting }}
+          REASON: ${{ inputs.reason }}
           SOURCE: ${{ inputs.source }}
           COMMENT: ${{ inputs.comment }}
+          OBJECT: ${{ inputs.object }}
+
         run: |
           python3 - <<'PY'
-          import os, ssl, json, urllib.request
+          import os
+          import ssl
+          import json
+          import urllib.request
 
-          text = (
-              "🆕 НОВЫЙ КАНДИДАТ\n\n"
-              f"ФИО: {os.environ['FULL_NAME']}\n"
-              f"Телефон: {os.environ['PHONE']}\n"
-              f"Специальность: {os.environ['SPECIALTY']}\n"
-              f"Встреча: {os.environ.get('MEETING') or 'Не указана'}\n"
-              f"Источник: {os.environ.get('SOURCE') or 'Не указан'}"
-          )
-
+          event_type = os.environ.get("EVENT_TYPE", "new_candidate")
+          full_name = os.environ.get("FULL_NAME", "")
+          phone = os.environ.get("PHONE", "")
+          specialty = os.environ.get("SPECIALTY", "")
+          meeting = os.environ.get("MEETING", "")
+          old_meeting = os.environ.get("OLD_MEETING", "")
+          reason = os.environ.get("REASON", "")
+          source = os.environ.get("SOURCE", "")
           comment = os.environ.get("COMMENT", "")
+          obj = os.environ.get("OBJECT", "") or "Не указан"
+
+          if event_type == "rescheduled":
+              text = (
+                  "🔄 ПЕРЕНОС ВСТРЕЧИ\n\n"
+                  f"ФИО: {full_name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Объект: {obj}\n"
+                  f"Предыдущая встреча: {old_meeting or 'Не указана'}\n"
+                  f"Новая встреча: {meeting or 'Не указана'}"
+              )
+
+              if reason:
+                  text += f"\nПричина переноса: {reason}"
+
+          elif event_type == "cancelled":
+              text = (
+                  "❌ ВСТРЕЧА ОТМЕНЕНА\n\n"
+                  f"ФИО: {full_name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Объект: {obj}\n"
+                  f"Дата встречи: {meeting or 'Не указана'}"
+              )
+
+              if reason:
+                  text += f"\nПричина отмены: {reason}"
+
+          else:
+              text = (
+                  "🆕 НОВЫЙ КАНДИДАТ\n\n"
+                  f"ФИО: {full_name}\n"
+                  f"Телефон: {phone}\n"
+                  f"Специальность: {specialty}\n"
+                  f"Объект: {obj}\n"
+                  f"Встреча: {meeting or 'Не указана'}\n"
+                  f"Источник: {source or 'Не указан'}"
+              )
+
+          if source and event_type != "new_candidate":
+              text += f"\nИсточник: {source}"
+
           if comment:
               text += f"\nКомментарий: {comment}"
 
-          context = ssl.create_default_context(cafile="russiantrustedca.pem")
-          url = "https://platform-api2.max.ru/messages?chat_id=" + os.environ["MAX_CHAT_ID"]
+          context = ssl.create_default_context(
+              cafile="russiantrustedca.pem"
+          )
 
-          data = json.dumps({"text": text}).encode("utf-8")
+          url = (
+              "https://platform-api2.max.ru/messages?chat_id="
+              + os.environ["MAX_CHAT_ID"]
+          )
+
+          data = json.dumps({
+              "text": text
+          }).encode("utf-8")
 
           request = urllib.request.Request(
               url,
@@ -82,6 +169,12 @@ jobs:
               }
           )
 
-          with urllib.request.urlopen(request, context=context, timeout=30) as response:
+          with urllib.request.urlopen(
+              request,
+              context=context,
+              timeout=30
+          ) as response:
               print("MAX ответил, HTTP:", response.status)
+              print("Тип события:", event_type)
+              print("Уведомление отправлено.")
           PY
