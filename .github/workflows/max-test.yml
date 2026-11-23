@@ -1,0 +1,49 @@
+
+name: MAX connection test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download and verify official certificate
+        run: |
+          curl --fail --silent --show-error --location \
+            https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
+            -o russiantrustedca.pem
+
+          echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
+
+      - name: Check MAX API
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import json
+          import ssl
+          import urllib.request
+
+          token = os.environ.get("MAX_BOT_TOKEN")
+          if not token:
+              raise SystemExit("MAX_BOT_TOKEN не найден")
+
+          context = ssl.create_default_context(
+              cafile="russiantrustedca.pem"
+          )
+
+          request = urllib.request.Request(
+              "https://platform-api2.max.ru/me",
+              headers={"Authorization": token}
+          )
+
+          with urllib.request.urlopen(
+              request, context=context, timeout=20
+          ) as response:
+              print("HTTP:", response.status)
+              data = json.loads(response.read().decode("utf-8"))
+              print(json.dumps(data, ensure_ascii=False, indent=2))
+          PY
