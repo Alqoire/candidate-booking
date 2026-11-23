@@ -3,6 +3,9 @@ name: MAX chat ID test
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   test:
