@@ -89,7 +89,11 @@ jobs:
 
         run: |
           python3 - <<'PY'
-          import os, ssl, json, urllib.request
+          import os
+          import ssl
+          import json
+          import urllib.request
+          import urllib.error
 
           event = os.environ["EVENT_TYPE"]
           name = os.environ["FULL_NAME"]
@@ -160,45 +164,84 @@ jobs:
           if comment and event not in ("new_candidate", "reminder_2h"):
               text += f"\nКомментарий: {comment}"
 
-          context = ssl.create_default_context(cafile="russiantrustedca.pem")
+          context = ssl.create_default_context(
+              cafile="russiantrustedca.pem"
+          )
 
           url = (
               "https://platform-api2.max.ru/messages?chat_id="
               + os.environ["MAX_CHAT_ID"]
           )
 
-          data = json.dumps({
-              "text": text,
-              "attachments": [
-                  {
-                      "type": "inline_keyboard",
-                      "payload": {
-                          "buttons": [
-                              [
-                                  {
-                                      "type": "open_app",
-                                      "text": "Открыть",
-                                      "web_app": "se15121687_bot"
-                                  }
-                              ]
+          headers = {
+              "Authorization": os.environ["MAX_BOT_TOKEN"],
+              "Content-Type": "application/json"
+          }
+
+          keyboard = [
+              {
+                  "type": "inline_keyboard",
+                  "payload": {
+                      "buttons": [
+                          [
+                              {
+                                  "type": "open_app",
+                                  "text": "Открыть",
+                                  "web_app": "se15121687_bot"
+                              }
                           ]
-                      }
+                      ]
                   }
-              ]
-          }, ensure_ascii=False).encode("utf-8")
-
-          request = urllib.request.Request(
-              url,
-              data=data,
-              method="POST",
-              headers={
-                  "Authorization": os.environ["MAX_BOT_TOKEN"],
-                  "Content-Type": "application/json"
               }
-          )
+          ]
 
-          with urllib.request.urlopen(request, context=context, timeout=30) as response:
-              print("MAX ответил, HTTP:", response.status)
-              print("Тип события:", event)
+          def send_message(body):
+              data = json.dumps(
+                  body,
+                  ensure_ascii=False
+              ).encode("utf-8")
+
+              request = urllib.request.Request(
+                  url,
+                  data=data,
+                  method="POST",
+                  headers=headers
+              )
+
+              with urllib.request.urlopen(
+                  request,
+                  context=context,
+                  timeout=30
+              ) as response:
+                  return response.status
+
+          message_with_button = {
+              "text": text,
+              "attachments": keyboard
+          }
+
+          try:
+              status = send_message(message_with_button)
+              print("MAX ответил, HTTP:", status)
               print("Уведомление с кнопкой Mini App отправлено.")
+
+          except urllib.error.HTTPError as error:
+              print("MAX отклонил сообщение с кнопкой.")
+              print("HTTP:", error.code)
+              print(error.read().decode("utf-8", errors="replace"))
+
+              if error.code not in (400, 422):
+                  raise
+
+              print("Пробуем резервную отправку без кнопки.")
+
+              status = send_message({
+                  "text": text
+              })
+
+              print("MAX ответил, HTTP:", status)
+              print("Уведомление отправлено без кнопки.")
+
+          print("Тип события:", event)
+          print("ФИО:", name)
           PY
