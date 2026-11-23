@@ -46,43 +46,45 @@ jobs:
                   return error.code, error.read().decode("utf-8")
 
           print("=== WEBHOOK SUBSCRIPTIONS ===")
-          status, body = get("/subscriptions")
+          status, response_body = get("/subscriptions")
           print("HTTP:", status)
 
           if status == 200:
               try:
-                  data = json.loads(body)
+                  data = json.loads(response_body)
                   print("Подписки получены.")
                   print("Количество подписок:",
                         len(data.get("subscriptions", [])))
               except Exception:
                   print("Ответ получен, но не удалось разобрать JSON.")
           else:
-              print("Ответ MAX:", body[:1500])
+              print("Ответ MAX:", response_body[:1500])
 
           print("\n=== LONG POLLING ===")
-          status, body = get("/updates?limit=100&timeout=0")
+          status, response_body = get("/updates?limit=100&timeout=0")
           print("HTTP:", status)
 
           try:
-              data = json.loads(body)
+              data = json.loads(response_body)
               updates = data.get("updates", [])
               print("Количество событий:", len(updates))
               print("Marker:", data.get("marker"))
 
               for item in updates:
-    msg = item.get("message") or {}
-    recipient = msg.get("recipient") or {}
-    sender = msg.get("sender") or {}
-    body = msg.get("body") or {}
+                  msg = item.get("message") or {}
+                  recipient = msg.get("recipient") or {}
+                  sender = msg.get("sender") or {}
+                  body = msg.get("body") or {}
 
-    print("Событие:", item.get("update_type"))
-    print("Chat ID:", recipient.get("chat_id"))
-    print("Тип чата:", recipient.get("chat_type"))
-    print("Отправитель:", sender.get("first_name"))
-    print("Текст:", body.get("text"))
-    print("---")
-          except Exception:
-              print("Ответ MAX:", body[:1500])
+                  print("Событие:", item.get("update_type"))
+                  print("Chat ID:", recipient.get("chat_id"))
+                  print("Тип чата:", recipient.get("chat_type"))
+                  print("Отправитель:", sender.get("first_name"))
+                  print("Текст:", body.get("text"))
+                  print("---")
+
+          except Exception as error:
+              print("Ошибка обработки ответа:", str(error))
+              print("Ответ MAX:", response_body[:1500])
 
           PY
