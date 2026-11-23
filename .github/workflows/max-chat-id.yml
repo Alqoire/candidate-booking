@@ -46,3 +46,33 @@ jobs:
                   "is_channel": item.get("is_channel")
               }, ensure_ascii=False))
           PY
+
+      - name: Send test message
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os, ssl, json, urllib.request
+
+          context = ssl.create_default_context(cafile="russiantrustedca.pem")
+
+          url = "https://platform-api2.max.ru/messages?chat_id=-81462779430339"
+
+          data = json.dumps({
+              "text": "🔥 STROY PODRYAD на связи! Тестовая отправка работает."
+          }).encode("utf-8")
+
+          request = urllib.request.Request(
+              url,
+              data=data,
+              method="POST",
+              headers={
+                  "Authorization": os.environ["MAX_BOT_TOKEN"],
+                  "Content-Type": "application/json"
+              }
+          )
+
+          with urllib.request.urlopen(request, context=context, timeout=30) as response:
+              print("HTTP:", response.status)
+              print(response.read().decode("utf-8"))
+          PY
