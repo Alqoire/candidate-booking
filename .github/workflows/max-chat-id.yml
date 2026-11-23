@@ -71,12 +71,17 @@ jobs:
               print("Marker:", data.get("marker"))
 
               for item in updates:
-                  print(
-                      "Событие:",
-                      item.get("update_type"),
-                      "| chat_id:",
-                      item.get("chat_id")
-                  )
+    msg = item.get("message") or {}
+    recipient = msg.get("recipient") or {}
+    sender = msg.get("sender") or {}
+    body = msg.get("body") or {}
+
+    print("Событие:", item.get("update_type"))
+    print("Chat ID:", recipient.get("chat_id"))
+    print("Тип чата:", recipient.get("chat_type"))
+    print("Отправитель:", sender.get("first_name"))
+    print("Текст:", body.get("text"))
+    print("---")
           except Exception:
               print("Ответ MAX:", body[:1500])
 
