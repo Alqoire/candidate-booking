@@ -1,15 +1,40 @@
 
-name: MAX chat ID test
+name: Send candidate to MAX
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+    inputs:
+      full_name:
+        description: "ФИО кандидата"
+        required: true
+        type: string
+      phone:
+        description: "Телефон"
+        required: true
+        type: string
+      specialty:
+        description: "Специальность"
+        required: true
+        type: string
+      meeting:
+        description: "Дата и время встречи"
+        required: true
+        type: string
+      source:
+        description: "Источник кандидата"
+        required: false
+        default: "Не указан"
+        type: string
+      comment:
+        description: "Комментарий"
+        required: false
+        default: "Нет"
+        type: string
 
 jobs:
-  test:
+  send-message:
     runs-on: ubuntu-latest
+
     steps:
       - name: Download certificate
         run: |
@@ -18,49 +43,35 @@ jobs:
             -o russiantrustedca.pem
           echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
 
-      - name: Get chat ID
+      - name: Send candidate notification
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
+          FULL_NAME: ${{ inputs.full_name }}
+          PHONE: ${{ inputs.phone }}
+          SPECIALTY: ${{ inputs.specialty }}
+          MEETING: ${{ inputs.meeting }}
+          SOURCE: ${{ inputs.source }}
+          COMMENT: ${{ inputs.comment }}
         run: |
           python3 - <<'PY'
           import os, ssl, json, urllib.request
 
           context = ssl.create_default_context(cafile="russiantrustedca.pem")
-          request = urllib.request.Request(
-              "https://platform-api2.max.ru/updates?limit=100&timeout=0",
-              headers={"Authorization": os.environ["MAX_BOT_TOKEN"]}
+
+          message = (
+              "🆕 НОВЫЙ КАНДИДАТ\n\n"
+              f"ФИО: {os.environ['FULL_NAME']}\n"
+              f"Телефон: {os.environ['PHONE']}\n"
+              f"Специальность: {os.environ['SPECIALTY']}\n"
+              f"Встреча: {os.environ['MEETING']}\n"
+              f"Источник: {os.environ['SOURCE']}\n"
+              f"Комментарий: {os.environ['COMMENT']}"
           )
 
-          with urllib.request.urlopen(request, context=context, timeout=30) as response:
-              data = json.loads(response.read().decode("utf-8"))
+          data = json.dumps({"text": message}, ensure_ascii=False).encode("utf-8")
 
-          updates = data.get("updates", [])
-          print("Количество событий:", len(updates))
-
-          for item in updates:
-              message = item.get("message") or {}
-              recipient = message.get("recipient") or {}
-              print(json.dumps({
-                  "update_type": item.get("update_type"),
-                  "chat_id": item.get("chat_id") or recipient.get("chat_id"),
-                  "is_channel": item.get("is_channel")
-              }, ensure_ascii=False))
-          PY
-
-      - name: Send test message
-        env:
-          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
-        run: |
-          python3 - <<'PY'
-          import os, ssl, json, urllib.request
-
-          context = ssl.create_default_context(cafile="russiantrustedca.pem")
-
-          url = "https://platform-api2.max.ru/messages?chat_id=-81462779430339"
-
-          data = json.dumps({
-              "text": "🔥 STROY PODRYAD на связи! Тестовая отправка работает."
-          }).encode("utf-8")
+          url = "https://platform-api2.max.ru/messages?chat_id=" + os.environ["MAX_CHAT_ID"]
 
           request = urllib.request.Request(
               url,
@@ -74,5 +85,5 @@ jobs:
 
           with urllib.request.urlopen(request, context=context, timeout=30) as response:
               print("HTTP:", response.status)
-              print(response.read().decode("utf-8"))
+              print("Уведомление успешно отправлено в MAX!")
           PY
