@@ -1,4492 +1,975 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10141d">
-  <title>STROY PODRYAD — Recruitment</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta id="iosViewport" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>STROY PODRYAD — Mobile</title>
   <style>
-    :root {
-      --bg:#0e1219;
-      --sidebar:#121820;
-      --panel:#171e29;
-      --panel2:#1c2533;
-      --border:#2a3444;
-      --text:#eef1f6;
-      --muted:#9aa6b8;
-      --gold:#c9a66b;
-      --gold-bg:rgba(201,166,107,.13);
-      --blue:#7aa3c7;
-      --green:#5fb89a;
-      --red:#c97a7a;
-      --object:#6b8f9c;
-      --radius:15px;
+    :root{
+      --bg:#f5f5f7;--card:#fff;--text:#17181c;--muted:#8a8d96;
+      --line:#e7e7eb;--soft:#eeeeF1;--green:#248a5b;--red:#d84b4b;
+      --blue:#4779c7;--yellow:#b68119;--nav:78px;--safe:env(safe-area-inset-bottom);
+      --r1:26px;--r2:20px;--r3:16px;
     }
-
-    * { box-sizing:border-box; }
-
-    body {
-      margin:0;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--text);
-      font-family:'Manrope',Arial,sans-serif;
-      font-size:14px;
-    }
-
-    button,input,select,textarea { font:inherit; }
-    button { cursor:pointer; }
-    button:disabled { cursor:not-allowed;opacity:.55;transform:none!important; }
-
-    .app {
-      min-height:100vh;
-      display:grid;
-      grid-template-columns:250px minmax(0,1fr);
-    }
-
-    .sidebar {
-      background:var(--sidebar);
-      border-right:1px solid var(--border);
-      padding:27px 17px;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
-      position:sticky;
-      top:0;
-      height:100vh;
-    }
-
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:0 9px;
-      margin-bottom:42px;
-    }
-
-    .brand-icon {
-      width:42px;height:42px;border-radius:12px;
-      background:linear-gradient(145deg,#354257,#202a39);
-      border:1px solid #48566c;
-      display:grid;place-items:center;
-      color:var(--gold);font-size:21px;font-weight:800;
-    }
-
-    .brand-name { font-size:19px;font-weight:800;letter-spacing:2px; }
-    .brand-sub { color:var(--muted);font-size:9px;letter-spacing:2px;margin-top:2px; }
-    .nav-label { color:#667286;font-size:10px;font-weight:800;letter-spacing:1.7px;padding:0 12px;margin:0 0 12px; }
-    .nav { display:grid;gap:6px; }
-
-    .nav-btn {
-      border:1px solid transparent;background:transparent;color:#9ba6b7;
-      border-radius:10px;padding:12px;display:flex;align-items:center;
-      gap:12px;text-align:left;width:100%;transition:.2s;
-    }
-
-    .nav-btn:hover { background:#202a38;color:white; }
-    .nav-btn.active { background:var(--gold-bg);border-color:rgba(215,196,155,.2);color:var(--gold); }
-    .nav-icon { width:21px;text-align:center;font-size:17px; }
-    .sidebar-bottom { margin-top:auto;padding:15px 10px 0; }
-
-    .system-status {
-      display:flex;align-items:center;gap:9px;color:var(--muted);
-      font-size:11px;border-top:1px solid var(--border);padding-top:17px;
-    }
-
-    .status-dot {
-      width:7px;height:7px;border-radius:50%;background:var(--green);
-      box-shadow:0 0 10px rgba(155,201,174,.4);
-    }
-
-    .main {
-      min-width:0;padding:34px 42px 60px;
-      max-width:1700px;width:100%;margin:0 auto;
-    }
-
-    .topbar {
-      display:flex;justify-content:space-between;align-items:center;
-      gap:20px;margin-bottom:35px;
-    }
-
-    .eyebrow { color:var(--gold);font-size:10px;letter-spacing:2px;font-weight:800;margin-bottom:8px; }
-    h1 { font-size:27px;letter-spacing:-.8px;margin:0;font-weight:800; }
-    .top-date { color:var(--muted);font-size:12px;margin-top:7px; }
-    .top-right { display:flex;align-items:center;gap:12px; }
-
-    .project-chip {
-      border:1px solid var(--border);background:var(--panel);
-      border-radius:10px;padding:10px 14px;color:#c3ccda;font-size:11px;
-    }
-
-    .avatar {
-      width:39px;height:39px;border-radius:12px;display:grid;place-items:center;
-      background:#303b4e;color:var(--gold);font-weight:800;
-    }
-
-    .page { display:none; }
-    .page.active { display:block;animation:appear .25s ease; }
-
-    @keyframes appear {
-      from { opacity:0;transform:translateY(5px); }
-      to { opacity:1;transform:translateY(0); }
-    }
-
-    .stats-grid {
-      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:16px;margin-bottom:25px;
-    }
-
-    .stat-card {
-      background:var(--panel);border:1px solid var(--border);
-      border-radius:var(--radius);padding:21px;min-width:0;
-      position:relative;overflow:hidden;
-    }
-
-    .stat-card::after {
-      content:"";position:absolute;width:85px;height:85px;
-      right:-35px;top:-38px;border-radius:50%;
-      background:var(--glow,rgba(215,196,155,.07));filter:blur(5px);
-    }
-
-    .stat-label { color:var(--muted);font-size:12px;font-weight:600; }
-    .stat-number { font-size:34px;font-weight:800;letter-spacing:-1.5px;margin-top:13px;color:var(--number-color,var(--text)); }
-    .stat-caption { color:#687589;font-size:10px;margin-top:5px; }
-
-    .section-card {
-      background:var(--panel);border:1px solid var(--border);
-      border-radius:var(--radius);overflow:hidden;min-width:0;
-    }
-
-    .section-head {
-      padding:20px 22px;display:flex;align-items:center;
-      justify-content:space-between;gap:15px;border-bottom:1px solid var(--border);
-    }
-
-    .section-title { font-size:14px;font-weight:800; }
-    .section-subtitle { color:var(--muted);font-size:11px;margin-top:4px; }
-    .text-btn { background:transparent;border:0;color:var(--gold);font-size:11px;font-weight:700;padding:8px; }
-
-    .table-wrap { width:100%;overflow-x:auto; }
-    table { width:100%;border-collapse:collapse;min-width:680px; }
-
-    th {
-      color:#778397;text-align:left;font-size:10px;letter-spacing:.8px;
-      font-weight:800;padding:14px 18px;white-space:nowrap;
-    }
-
-    td {
-      padding:15px 18px;border-top:1px solid rgba(43,53,69,.7);
-      color:#cbd2dd;font-size:12px;vertical-align:middle;
-    }
-
-    tbody tr:hover { background:rgba(255,255,255,.018); }
-    .candidate-name { font-weight:700;color:#eef0f4;font-size:12px; }
-    .candidate-phone { color:var(--muted);font-size:11px;margin-top:4px; }
-
-    .phone-link {
-      color:#cbd2dd;text-decoration:none;
-      border-bottom:1px dashed rgba(169,191,220,.45);
-      transition:.2s;
-    }
-
-    .phone-link:hover { color:var(--gold); }
-
-    .status-select {
-      background:#151c27;border:1px solid var(--border);color:#cbd2dd;
-      border-radius:8px;padding:7px 9px;font-size:10px;max-width:180px;
-    }
-
-    .status-select option { background:#151c27;color:#cbd2dd; }
-    .status-select.status-working { color:#5fb89a;border-color:#2d6a5a; }
-    .status-select.status-trial { color:#e0b35a;border-color:#8a6a2a; }
-    .status-select.status-arrived { color:#7aa3c7;border-color:#3d5a78; }
-    .status-select.status-rejected { color:#c97a7a;border-color:#7a3d3d; }
-    .status-select.status-new { color:#9aa6b8;border-color:#475569; }
-
-    .toolbar {
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      padding:17px 20px;border-bottom:1px solid var(--border);
-    }
-
-    .search-box { flex:1;min-width:190px;position:relative; }
-    .search-box input { padding-left:37px; }
-    .search-symbol { position:absolute;left:13px;top:11px;color:#718096;font-size:15px; }
-
-    .control {
-      height:42px;border-radius:9px;border:1px solid var(--border);
-      background:#131a25;color:var(--text);padding:0 12px;
-      outline:none;min-width:140px;
-    }
-
-    .control:focus,.field-control:focus { border-color:#8f9eb5; }
-
-    .primary-btn {
-      border:1px solid #d4b07a;background:var(--gold);color:#1a1510;
-      border-radius:9px;padding:12px 17px;font-weight:800;
-      font-size:11px;transition:.2s;
-    }
-
-    .primary-btn:hover { background:#e0bc78;transform:translateY(-1px); }
-
-    .secondary-btn {
-      border:1px solid var(--border);background:#202a39;color:#c7d0dd;
-      border-radius:9px;padding:11px 14px;font-size:11px;
-      font-weight:700;transition:.2s;
-    }
-
-    .secondary-btn:hover { background:#29364a; }
-
-    .quick-actions {
-      display:flex;gap:7px;align-items:center;flex-wrap:wrap;
-      margin-top:10px;
-    }
-
-    .quick-btn {
-      display:inline-flex;align-items:center;justify-content:center;gap:6px;
-      min-height:34px;padding:7px 10px;border-radius:8px;
-      border:1px solid var(--border);background:#202a39;color:#cbd2dd;
-      font-size:10px;font-weight:700;text-decoration:none;transition:.2s;
-    }
-
-    .quick-btn:hover { background:#2a374a;transform:translateY(-1px); }
-    .quick-btn.call { color:#a9d7b7;border-color:rgba(155,201,174,.3); }
-    .quick-btn.max { color:#b9c9ed;border-color:rgba(169,191,220,.3); }
-    .quick-btn.copy { color:#d7c49b;border-color:rgba(215,196,155,.3); }
-
-    .today-time {
-      display:inline-flex;align-items:center;gap:6px;
-      color:var(--gold);font-weight:800;font-size:12px;
-      white-space:nowrap;
-    }
-
-    .today-card {
-      background:#151d29;border:1px solid var(--border);
-      border-radius:11px;padding:15px;min-width:0;
-    }
-
-    .today-card-top {
-      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
-    }
-
-    .today-card-name { font-size:13px;font-weight:800;overflow-wrap:anywhere; }
-    .today-card-specialty { color:var(--muted);font-size:11px;margin-top:5px; }
-    .today-card-time { color:var(--gold);font-weight:800;font-size:12px;white-space:nowrap; }
-    .today-card-object { color:var(--muted);font-size:10px;margin-top:9px; }
-    .today-card-status { margin-top:10px; }
-
-    .today-mobile {
-      display:none;padding:12px;gap:10px;
-    }
-
-    .form-layout {
-      display:grid;grid-template-columns:minmax(0,1fr) 300px;
-      gap:18px;align-items:start;
-    }
-
-    .form-panel {
-      background:var(--panel);border:1px solid var(--border);
-      border-radius:var(--radius);padding:25px;
-    }
-
-    .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:19px; }
-    .field { display:flex;flex-direction:column;gap:8px;min-width:0; }
-    .field.full { grid-column:1/-1; }
-    .field label { color:#aeb8c7;font-size:11px;font-weight:700; }
-
-    .field-control {
-      width:100%;height:45px;border:1px solid var(--border);
-      border-radius:9px;background:#121923;color:white;
-      padding:0 12px;outline:none;min-width:0;
-    }
-
-    textarea.field-control { height:95px;padding:12px;resize:vertical; }
-    .field-hint { color:#687589;font-size:10px;line-height:1.6; }
-    .form-actions { display:flex;gap:10px;margin-top:23px; }
-    .form-actions button { min-height:44px; }
-
-    .info-panel {
-      background:#1a2230;border:1px solid var(--border);
-      border-radius:var(--radius);padding:21px;
-    }
-
-    .info-panel h3 { font-size:13px;margin:0 0 17px; }
-    .info-line { display:flex;gap:10px;margin-bottom:15px;color:#aab5c5;font-size:11px;line-height:1.6; }
-    .info-line span:first-child { color:var(--gold); }
-
-    .empty { padding:40px 20px;text-align:center;color:var(--muted);font-size:12px; }
-    .loading { padding:30px;text-align:center;color:var(--muted);font-size:12px; }
-
-    .message {
-      display:none;padding:13px 15px;border-radius:9px;
-      margin-top:16px;font-size:12px;line-height:1.5;white-space:pre-line;
-    }
-
-    .message.success {
-      display:block;color:var(--green);background:rgba(155,201,174,.09);
-      border:1px solid rgba(155,201,174,.2);
-    }
-
-    .message.error {
-      display:block;color:var(--red);background:rgba(223,146,146,.08);
-      border:1px solid rgba(223,146,146,.2);
-    }
-
-    .count-label { color:var(--muted);font-size:11px;padding:0 20px 15px; }
-
-    .mobile-candidates { display:none;padding:12px;gap:10px; }
-
-    .mobile-candidate {
-      background:#151d29;border:1px solid var(--border);
-      border-radius:11px;padding:14px;
-    }
-
-    .mobile-candidate-top { display:flex;justify-content:space-between;gap:10px;align-items:flex-start; }
-    .mobile-candidate-name { font-size:13px;font-weight:800;overflow-wrap:anywhere; }
-    .mobile-candidate-details { color:var(--muted);font-size:11px;line-height:1.8;margin-top:9px;white-space:pre-line; }
-    .mobile-candidate .status-select { margin-top:12px;width:100%;max-width:none;height:38px; }
-
-    .candidate-actions { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px; }
-    .candidate-actions .secondary-btn { padding:9px 12px; }
-/* =========================
-   КАЛЕНДАРЬ
-========================= */
-
-.calendar-toolbar {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:15px;
-  padding:17px 20px;
-  border-bottom:1px solid var(--border);
-}
-
-.calendar-navigation {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.calendar-period {
-  font-size:16px;
-  font-weight:800;
-  color:var(--text);
-  margin-left:8px;
-  text-transform:capitalize;
-}
-
-.calendar-view-switch {
-  display:flex;
-  gap:4px;
-  padding:4px;
-  background:#121923;
-  border:1px solid var(--border);
-  border-radius:10px;
-}
-
-.calendar-view-btn {
-  border:0;
-  background:transparent;
-  color:var(--muted);
-  padding:9px 13px;
-  border-radius:7px;
-  font-size:11px;
-  font-weight:800;
-}
-
-.calendar-view-btn.active {
-  background:var(--gold-bg);
-  color:var(--gold);
-}
-
-.calendar-legend {
-  display:flex;
-  flex-wrap:wrap;
-  gap:17px;
-  padding:14px 20px;
-  color:var(--muted);
-  font-size:10px;
-  border-bottom:1px solid var(--border);
-}
-
-.calendar-legend span {
-  display:flex;
-  align-items:center;
-  gap:7px;
-}
-
-.legend-dot {
-  display:inline-block;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-}
-
-.legend-dot.planned { background:var(--blue); }
-.legend-dot.rescheduled { background:var(--gold); }
-.legend-dot.cancelled { background:var(--red); }
-
-.calendar-month {
-  display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-}
-
-.calendar-weekday {
-  padding:13px 5px;
-  text-align:center;
-  color:var(--muted);
-  font-size:10px;
-  font-weight:800;
-  border-bottom:1px solid var(--border);
-}
-
-.calendar-day {
-  min-height:92px;
-  padding:8px 6px;
-  border-right:1px solid rgba(43,53,69,.6);
-  border-bottom:1px solid rgba(43,53,69,.6);
-  cursor:pointer;
-  min-width:0;
-  transition:background .15s;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-
-.calendar-day:hover {
-  background:rgba(255,255,255,.035);
-}
-
-.calendar-day.other-month {
-  opacity:.35;
-}
-
-.calendar-day.today {
-  background:rgba(215,196,155,.055);
-}
-
-.calendar-day.selected {
-  box-shadow:inset 0 0 0 1px var(--gold);
-  background:rgba(215,196,155,.07);
-}
-
-.calendar-day-number {
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:2px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:4px;
-}
-
-.calendar-day.today .calendar-day-number {
-  color:var(--gold);
-}
-
-.calendar-day-badge {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:18px;
-  height:18px;
-  padding:0 5px;
-  border-radius:9px;
-  background:rgba(169,191,220,.2);
-  color:#c5d5ec;
-  font-size:10px;
-  font-weight:800;
-  line-height:1;
-}
-
-.calendar-day-badge.has-rescheduled {
-  background:rgba(215,196,155,.22);
-  color:#e0d0a8;
-}
-
-.calendar-day-badge.has-cancelled {
-  background:rgba(223,146,146,.18);
-  color:#e0b0b0;
-}
-
-.calendar-day-indicators {
-  display:flex;
-  flex-wrap:wrap;
-  gap:3px;
-  margin-top:2px;
-}
-
-.calendar-day-dot {
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:var(--blue);
-}
-
-.calendar-day-dot.rescheduled { background:var(--gold); }
-.calendar-day-dot.cancelled { background:var(--red); }
-
-.calendar-day-summary {
-  color:var(--muted);
-  font-size:9px;
-  line-height:1.35;
-  margin-top:auto;
-  overflow:hidden;
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-}
-
-.calendar-event {
-  display:block;
-  width:100%;
-  text-align:left;
-  border:0;
-  border-left:3px solid var(--blue);
-  border-radius:4px;
-  padding:5px 6px;
-  margin-bottom:4px;
-  background:rgba(122,163,199,.14);
-  color:#d4e2f0;
-  font-size:9px;
-  line-height:1.4;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  cursor:pointer;
-}
-
-.calendar-event.rescheduled {
-  border-left-color:var(--gold);
-  background:rgba(201,166,107,.14);
-  color:#e8d4a8;
-}
-
-.calendar-event.cancelled {
-  border-left-color:var(--red);
-  background:rgba(201,122,122,.12);
-  color:#e0b0b0;
-  text-decoration:line-through;
-}
-
-.calendar-more {
-  color:var(--muted);
-  font-size:9px;
-  padding:3px 5px;
-}
-
-/* Day view: only occupied slots + grouping */
-.calendar-time-group {
-  margin-bottom:14px;
-  border:1px solid var(--border);
-  border-radius:11px;
-  overflow:hidden;
-  background:#151d29;
-}
-
-.calendar-time-group-header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:11px 14px;
-  background:#1a2433;
-  border-bottom:1px solid var(--border);
-  font-size:12px;
-  font-weight:800;
-  color:var(--gold);
-}
-
-.calendar-time-group-header span {
-  color:var(--muted);
-  font-weight:600;
-  font-size:11px;
-}
-
-.calendar-time-group-body {
-  padding:8px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.calendar-time-group .calendar-event {
-  font-size:12px;
-  padding:10px 12px;
-  margin-bottom:0;
-  border-radius:8px;
-}
-
-.calendar-week {
-  display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-}
-
-.calendar-week-column {
-  min-width:0;
-  min-height:260px;
-  padding:9px 6px;
-  border-right:1px solid var(--border);
-}
-
-.calendar-week-column:last-child {
-  border-right:0;
-}
-
-.calendar-week-column.selected {
-  background:rgba(215,196,155,.045);
-}
-
-.calendar-week-date {
-  text-align:center;
-  padding:9px 2px 13px;
-  border-bottom:1px solid var(--border);
-  margin-bottom:10px;
-  cursor:pointer;
-}
-
-.calendar-week-date strong {
-  display:block;
-  font-size:17px;
-}
-
-.calendar-week-date span {
-  color:var(--muted);
-  font-size:9px;
-  text-transform:uppercase;
-}
-
-.calendar-week-date.today strong {
-  color:var(--gold);
-}
-
-.calendar-day-layout {
-  padding:15px;
-}
-
-.calendar-day-heading {
-  font-size:13px;
-  font-weight:800;
-  margin-bottom:15px;
-}
-
-.calendar-slot {
-  display:grid;
-  grid-template-columns:65px minmax(0,1fr);
-  min-height:65px;
-  border-top:1px solid rgba(43,53,69,.65);
-}
-
-.calendar-slot-time {
-  padding:12px 8px 0 0;
-  color:var(--muted);
-  font-size:10px;
-  font-weight:700;
-}
-
-.calendar-slot-content {
-  padding:6px;
-  min-width:0;
-  border-left:1px solid var(--border);
-}
-
-.calendar-slot .calendar-event {
-  font-size:11px;
-  padding:8px 10px;
-  margin-bottom:5px;
-}
-
-.calendar-empty-day {
-  padding:30px 15px;
-  text-align:center;
-  color:var(--muted);
-  font-size:11px;
-}
-
-.calendar-count {
-  color:var(--muted);
-  font-size:10px;
-  padding:13px 20px;
-  border-top:1px solid var(--border);
-}
-
-.calendar-event:focus-visible,
-.calendar-day:focus-visible,
-.calendar-view-btn:focus-visible {
-  outline:2px solid var(--gold);
-  outline-offset:-2px;
-}
-
-@media(max-width:700px) {
-  .calendar-toolbar {
-    align-items:stretch;
-    padding:13px;
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:var(--bg)}
+    body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,Arial,sans-serif;color:var(--text);font-size:16px;-webkit-font-smoothing:antialiased;padding-bottom:calc(112px + var(--safe) + 24px)}
+    button,input,select,textarea{font:inherit}
+    button{border:0;cursor:pointer}
+    button:active{transform:scale(.985)}
+    a{color:inherit}
+    .app{width:100%;max-width:760px;margin:auto}
+    .screen{display:none;padding:22px 18px 32px}
+    .screen.active{display:block}
+    .header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px;padding-top:4px}
+    .eyebrow{color:var(--muted);font-size:13px;font-weight:700;margin-bottom:6px}
+    .title{margin:0;font-size:32px;line-height:1.05;font-weight:850;letter-spacing:-.045em}
+    .subtitle{margin-top:8px;color:var(--muted);font-size:15px;line-height:1.4}
+    .head-btn{width:48px;height:48px;flex:0 0 48px;border:1px solid var(--line);background:#fff;border-radius:16px;display:grid;place-items:center;box-shadow:0 6px 22px rgba(0,0,0,.04)}
+    svg.icon{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+    .stat,.card{background:#fff;border:1px solid var(--line);border-radius:var(--r2);box-shadow:0 7px 25px rgba(0,0,0,.035)}
+    .stat{min-height:126px;padding:18px}
+    .stat-label{color:var(--muted);font-size:14px;font-weight:650}
+    .stat-value{margin-top:12px;font-size:38px;line-height:1;font-weight:850;letter-spacing:-.05em}
+    .stat-note{margin-top:9px;color:var(--muted);font-size:12px}
+    .section{margin-top:22px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+    .section-title{margin:0;font-size:21px;font-weight:850;letter-spacing:-.025em}
+    .link-btn{background:none;color:var(--muted);font-size:14px;font-weight:750;padding:7px 0}
+    .list{display:grid;gap:10px}
+    .today-card,.candidate-card,.meeting-card,.object-card{background:#fff;border:1px solid var(--line);border-radius:var(--r2);box-shadow:0 7px 25px rgba(0,0,0,.035)}
+    .today-card,.candidate-card,.meeting-card{padding:17px}
+    .row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .name{font-size:18px;line-height:1.2;font-weight:850;letter-spacing:-.025em}
+    .minor{margin-top:5px;color:var(--muted);font-size:14px;line-height:1.4}
+    .phone-link{display:inline-flex;align-items:center;margin-top:10px;color:#17181c;font-size:17px;font-weight:800;text-decoration:none;padding:7px 10px;margin-left:-10px;border-radius:11px}
+    .phone-link:active{background:#f0f0f3}
+    .pill{padding:7px 10px;border-radius:999px;background:var(--soft);font-size:12px;font-weight:750;white-space:nowrap}
+    .time-pill{padding:8px 10px;border-radius:11px;background:var(--soft);font-size:14px;font-weight:850;white-space:nowrap}
+    .meta{display:grid;gap:5px;margin-top:13px;color:var(--muted);font-size:13px;line-height:1.4}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+    .btn{min-height:48px;padding:0 15px;border-radius:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800}
+    .btn-dark{background:#17181c;color:#fff}.btn-light{background:var(--soft);color:var(--text)}.btn-outline{background:#fff;border:1px solid var(--line)}.btn-danger{background:#fff0f0;color:var(--red)}
+    .btn-full{width:100%}
+    .search{position:relative;margin-bottom:13px}.search input{width:100%;height:52px;padding:0 16px 0 47px;background:#fff;border:1px solid var(--line);border-radius:17px;font-size:16px}
+    .search .icon{position:absolute;left:16px;top:15px;color:var(--muted)}
+    .fab{position:fixed;right:18px;bottom:calc(102px + var(--safe) + 18px);z-index:60;width:68px;height:68px;border-radius:22px;background:rgba(23,24,28,.88);color:#fff;display:grid;place-items:center;box-shadow:0 15px 36px rgba(0,0,0,.24);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.10)}
+    .fab .icon{width:29px;height:29px}
+    .bottom-nav{position:fixed;left:12px;right:12px;bottom:calc(12px + var(--safe));z-index:50;height:78px;padding:6px 5px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:rgba(255,255,255,.97);border-top:1px solid rgba(0,0,0,.08);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 12px 35px rgba(0,0,0,.14);border-radius:24px}
+    .nav-item{width:100%;min-width:0;min-height:66px;background:transparent;color:#8d9098;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:12px;font-weight:800;border-radius:16px}
+    .nav-item .icon{width:29px;height:29px}.nav-item.active{color:#17181c;background:#f0f0f3}.nav-item.active .icon{stroke-width:2.5}
+    .form{display:grid;gap:14px}.field{display:grid;gap:7px}.field label{font-size:14px;font-weight:800}
+    .field input,.field select,.field textarea{width:100%;min-height:54px;padding:0 15px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--text);font-size:16px;line-height:1.25;-webkit-appearance:none;appearance:none}.field input[type="date"],.field input[type="time"]{font-size:17px;font-weight:700}
+    .field textarea{min-height:110px;padding-top:14px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus,.search input:focus{border-color:#a9abb2;box-shadow:0 0 0 3px rgba(0,0,0,.04);outline:none}
+    .form-actions{display:grid;gap:9px;margin-top:5px;padding-top:4px;position:sticky;bottom:0;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 18px);padding-bottom:2px}
+    .empty{padding:30px 20px;text-align:center;color:var(--muted);font-size:15px;line-height:1.45}.empty strong{display:block;color:var(--text);font-size:17px;margin-bottom:5px}
+    .loading{padding:30px 20px;text-align:center;color:var(--muted);font-size:14px}.spinner{width:25px;height:25px;margin:0 auto 10px;border:3px solid #e5e5e8;border-top-color:#17181c;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .calendar-toolbar{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;margin-bottom:12px}.calendar-toolbar .btn{min-height:48px;padding:0}.calendar-label{text-align:center;font-size:17px;font-weight:850}
+    .calendar-switch{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:5px;background:#e9e9ed;border-radius:14px;margin-bottom:14px}.calendar-switch button{height:38px;border-radius:10px;background:transparent;font-size:13px;font-weight:800;color:var(--muted)}.calendar-switch button.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekday{text-align:center;color:var(--muted);font-size:11px;font-weight:800;padding:5px 0}.day{min-height:50px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:7px;font-size:13px;font-weight:750;text-align:left}.day.muted{color:#b8bac1;background:#fafafa}.day.today{box-shadow:inset 0 0 0 2px #17181c}.day.selected{background:#17181c;color:#fff}.day .dot{width:6px;height:6px;border-radius:50%;background:currentColor;margin-top:6px;opacity:.7}
+    .agenda{display:grid;gap:9px}.agenda-item{display:grid;grid-template-columns:62px 1fr;gap:12px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:17px}.agenda-time{font-size:18px;font-weight:850}.agenda-body{min-width:0}.agenda-name{font-size:16px;font-weight:800}.agenda-meta{margin-top:4px;color:var(--muted);font-size:13px}
+    .object-list{display:grid;gap:9px}.object-card{padding:17px;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:space-between}
+    .analytics-grid{display:grid;gap:12px}.analytics-card{padding:18px;background:#fff;border:1px solid var(--line);border-radius:20px}.analytics-number{font-size:32px;font-weight:850;margin-top:7px}.analytics-label{color:var(--muted);font-size:13px;font-weight:700}
+    .modal{position:fixed;inset:0;width:100%;height:100%;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.36);padding:0;overscroll-behavior:none;touch-action:none}.modal.open{display:flex}.sheet{width:100%;max-width:760px;max-height:min(93vh,93dvh);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#fff;border-radius:28px 28px 0 0;padding:11px 18px calc(24px + var(--safe));box-shadow:0 -20px 60px rgba(0,0,0,.18)}.modal.keyboard-open .sheet{max-height:calc(100dvh - 6px);border-radius:22px 22px 0 0}.modal.keyboard-open .handle{margin-bottom:12px}.modal.keyboard-open .sheet-head{margin-bottom:14px}.handle{width:38px;height:5px;margin:0 auto 20px;border-radius:99px;background:#d7d7dc}.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}.sheet-title{margin:0;font-size:25px;font-weight:850;letter-spacing:-.035em}.close{width:40px;height:40px;border-radius:13px;background:var(--soft);display:grid;place-items:center}.close .icon{width:20px;height:20px}
+    .toast{position:fixed;left:16px;right:16px;top:calc(13px + env(safe-area-inset-top));z-index:200;padding:15px 17px;border-radius:17px;background:#17181c;color:#fff;font-size:14px;font-weight:700;line-height:1.4;box-shadow:0 14px 40px rgba(0,0,0,.2);transform:translateY(-140%);opacity:0;transition:.25s}.toast.show{transform:translateY(0);opacity:1}.toast.error{background:#9f3030}.toast.success{background:#176d49}
+    .profile-block{display:grid;gap:14px}.profile-card{padding:18px}.profile-label{color:var(--muted);font-size:12px;margin-bottom:4px}.profile-value{font-size:16px;font-weight:750}
+    .history-item{padding:15px 17px;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.history-action{font-size:14px;font-weight:800}.history-text{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.45}.history-date{margin-top:5px;color:var(--muted);font-size:11px}
+    @media(min-width:701px){
+  .app{max-width:760px}
+  /* Нижняя панель всегда на всю ширину viewport, без боковых пустот */
+  .bottom-nav{
+    left:50%;
+    right:auto;
+    width:min(620px,calc(100vw - 24px));
+    transform:translateX(-50%);
+    max-width:620px;
+    margin:0;
+    border-radius:24px;
   }
-
-  .calendar-navigation {
-    width:100%;
-    justify-content:space-between;
-  }
-
-  .calendar-period {
-    font-size:13px;
-    margin-left:0;
-  }
-
-  .calendar-view-switch {
-    width:100%;
-  }
-
-  .calendar-view-btn {
-    flex:1;
-  }
-
-  .calendar-legend {
-    padding:12px;
-    gap:10px;
-    font-size:9px;
-  }
-
-  .calendar-day {
-    min-height:68px;
-    padding:5px 3px;
-  }
-
-  .calendar-day-number {
-    font-size:10px;
-    margin-bottom:2px;
-  }
-
-  .calendar-day-badge {
-    min-width:15px;
-    height:15px;
-    font-size:9px;
-  }
-
-  .calendar-day-summary {
-    font-size:8px;
-    -webkit-line-clamp:1;
-  }
-
-  .calendar-event {
-    font-size:8px;
-    padding:4px 3px;
-    border-left-width:2px;
-  }
-
-  .calendar-more {
-    font-size:8px;
-    padding:2px;
-  }
-
-  .calendar-time-group-header {
-    padding:10px 12px;
-    font-size:11px;
-  }
-
-  .calendar-week {
-    grid-template-columns:repeat(7,minmax(95px,1fr));
-  }
-
-  .calendar-week-wrapper {
-    overflow-x:auto;
-  }
-
-  .calendar-week-column {
-    min-height:220px;
-  }
-
-  .calendar-day-layout {
-    padding:10px;
-  }
-
-  .calendar-slot {
-    grid-template-columns:48px minmax(0,1fr);
-  }
-
-  .calendar-count {
-    padding:12px;
-  }
+  .fab{right:18px}
 }
-    @media(max-width:1100px) {
-      .main { padding:28px 25px 50px; }
-      .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
-      .form-layout { grid-template-columns:1fr; }
-    }
-
-    @media(max-width:700px) {
-      .app { display:block; }
-
-      .sidebar {
-        position:fixed;z-index:20;top:auto;bottom:0;left:0;right:0;
-        width:100%;height:auto;min-height:0;
-        padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-        border-right:0;border-top:1px solid var(--border);
-        background:rgba(20,26,37,.97);backdrop-filter:blur(15px);
-      }
-
-      .brand,.nav-label,.sidebar-bottom { display:none; }
-      .nav { display:grid;grid-template-columns:repeat(4,1fr);gap:5px; }
-
-      .nav-btn {
-        justify-content:center;flex-direction:column;
-        gap:3px;padding:8px 4px;font-size:9px;border-radius:9px;
-      }
-
-      .nav-icon { font-size:18px;width:auto; }
-      .main { padding:22px 15px 105px; }
-      .topbar { align-items:flex-start;margin-bottom:24px; }
-      h1 { font-size:23px; }
-      .project-chip { display:none; }
-      .stats-grid { gap:10px;margin-bottom:16px; }
-      .stat-card { padding:15px; }
-      .stat-number { font-size:28px; }
-      .stat-label { font-size:10px; }
-      .section-head { padding:16px; }
-      .toolbar { padding:13px;gap:8px; }
-      .search-box { flex-basis:100%; }
-      .toolbar .control { flex:1;min-width:0;width:100%; }
-      .table-wrap { display:none; }
-      .today-mobile { display:grid; }
-      .mobile-candidates { display:grid; }
-      .form-panel { padding:17px; }
-      .form-grid { grid-template-columns:1fr;gap:15px; }
-      .field.full { grid-column:auto; }
-      .form-actions { flex-direction:column; }
-      .form-actions button { width:100%; }
-      .info-panel { padding:17px; }
-      .quick-btn { flex:1; }
-    }
-
-    @media(max-width:370px) {
-      .main { padding-left:11px;padding-right:11px; }
-      .stat-card { padding:12px; }
-      .stat-number { font-size:25px; }
-    }
-
-    /* Toast notifications */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 200000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-width: min(380px, calc(100vw - 32px));
-      pointer-events: none;
-    }
-
-    .toast {
-      pointer-events: auto;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: #1a2230;
-      border: 1px solid var(--border);
-      box-shadow: 0 16px 40px rgba(0,0,0,.45);
-      color: var(--text);
-      font-size: 13px;
-      line-height: 1.45;
-      opacity: 0;
-      transform: translateX(24px);
-      transition: opacity .28s ease, transform .28s ease;
-      white-space: pre-line;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .toast.hide {
-      opacity: 0;
-      transform: translateX(24px);
-    }
-
-    .toast-icon {
-      flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 800;
-      margin-top: 1px;
-    }
-
-    .toast.success {
-      border-color: rgba(95,184,154,.35);
-      background: linear-gradient(135deg, #17241f 0%, #1a2230 60%);
-    }
-    .toast.success .toast-icon {
-      background: rgba(95,184,154,.2);
-      color: var(--green);
-    }
-
-    .toast.error {
-      border-color: rgba(201,122,122,.4);
-      background: linear-gradient(135deg, #2a1a1a 0%, #1a2230 60%);
-    }
-    .toast.error .toast-icon {
-      background: rgba(201,122,122,.2);
-      color: var(--red);
-    }
-
-    .toast.info {
-      border-color: rgba(122,163,199,.35);
-      background: linear-gradient(135deg, #17202a 0%, #1a2230 60%);
-    }
-    .toast.info .toast-icon {
-      background: rgba(122,163,199,.2);
-      color: var(--blue);
-    }
-
-    .toast.warning {
-      border-color: rgba(201,166,107,.4);
-      background: linear-gradient(135deg, #2a2418 0%, #1a2230 60%);
-    }
-    .toast.warning .toast-icon {
-      background: rgba(201,166,107,.2);
-      color: var(--gold);
-    }
-
-    .toast-body { flex: 1; min-width: 0; }
-    .toast-title {
-      font-weight: 800;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-    .toast-text {
-      color: #c5cedb;
-      font-size: 12px;
-    }
-
-    .toast-close {
-      flex-shrink: 0;
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0 2px;
-    }
-    .toast-close:hover { color: var(--text); }
-
-
-/* ===== АНАЛИТИКА ===== */
-
-.analytics-stats {
-  margin-bottom: 22px;
-}
-
-.analytics-toolbar {
-  border-bottom: 1px solid var(--border);
-}
-
-.analytics-toolbar .control {
-  min-width: 170px;
-}
-
-.analytics-content {
-  padding: 22px;
-  display: grid;
-  gap: 22px;
-}
-
-.analytics-block {
-  min-width: 0;
-}
-
-.analytics-block-title {
-  font-size: 13px;
-  font-weight: 800;
-  margin-bottom: 14px;
-}
-
-.analytics-list {
-  display: grid;
-  gap: 12px;
-}
-
-.analytics-row {
-  display: grid;
-  grid-template-columns: minmax(100px, 170px) 1fr 42px;
-  align-items: center;
-  gap: 12px;
-}
-
-.analytics-name {
-  color: #cbd2dd;
-  font-size: 11px;
-  overflow-wrap: anywhere;
-}
-
-.analytics-track {
-  height: 9px;
-  background: #151c27;
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.analytics-fill {
-  height: 100%;
-  border-radius: 20px;
-  background: var(--gold);
-  transition: width .3s ease;
-}
-
-.analytics-value {
-  color: var(--text);
-  font-size: 11px;
-  font-weight: 800;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.analytics-empty {
-  color: var(--muted);
-  font-size: 12px;
-  padding: 12px 0;
-}
-
-.analytics-date-note {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-@media (max-width: 700px) {
-  .analytics-content {
-    padding: 15px;
+    @media(max-width:380px){.screen{padding-left:14px;padding-right:14px}.title{font-size:29px}.stat{padding:15px}.stat-value{font-size:34px}}
+    @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  
+/* Финальная мобильная форма */
+@media (max-width:760px){
+  .sheet{padding:22px 18px calc(24px + env(safe-area-inset-bottom)) !important;}
+  #candidateForm{gap:14px !important;}
+  #candidateForm input,#candidateForm select,#candidateForm textarea{
+    min-height:56px !important;
+    font-size:17px !important;
+    line-height:1.25 !important;
+    border-radius:16px !important;
   }
-
-  .analytics-toolbar {
-    align-items: stretch;
-  }
-
-  .analytics-toolbar .control {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .analytics-row {
-    grid-template-columns: 95px minmax(40px, 1fr) 30px;
-    gap: 8px;
-  }
-
-  .analytics-name,
-  .analytics-value {
-    font-size: 10px;
-  }
-
-  .analytics-stats .stat-card {
-    padding: 15px;
-  }
-
-  .analytics-stats .stat-number {
-    font-size: 27px;
-  }
+  #candidateForm textarea{min-height:112px !important;padding-top:16px !important;}
+  #candidateForm button{min-height:56px !important;font-size:17px !important;border-radius:16px !important;}
+  #candidateModal .sheet{max-height:94dvh !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch;}
 }
 
 
-    @media (max-width: 700px) {
-      .toast-container {
-        top: auto;
-        bottom: 78px;
-        left: 12px;
-        right: 12px;
-        max-width: none;
-      }
-      .toast {
-        transform: translateY(16px);
-      }
-      .toast.show { transform: translateY(0); }
-      .toast.hide { transform: translateY(16px); }
-    }
-
-  </style>
+.candidate-sheet{padding-bottom:calc(18px + var(--safe))!important}.candidate-progress{display:flex;align-items:center;gap:10px;margin:-8px 0 20px;color:var(--muted);font-size:12px;font-weight:800}.candidate-progress-track{height:5px;flex:1;background:#ececef;border-radius:99px;overflow:hidden}.candidate-progress-track i{display:block;width:20%;height:100%;background:#17181c;border-radius:99px;transition:width .22s ease}.candidate-step{display:none;min-height:340px}.candidate-step.active{display:grid;align-content:start;gap:15px}.candidate-step h3{margin:0;font-size:24px;line-height:1.08;letter-spacing:-.03em}.candidate-step p{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.context-icon{width:54px;height:54px;border-radius:18px;background:#f0f0f3;display:grid;place-items:center}.context-icon .icon{width:27px;height:27px}.context-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quick-times{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.quick-times button{height:42px;border-radius:13px;background:#f0f0f3;color:#17181c;font-weight:800}.wizard-actions{display:grid;grid-template-columns:.75fr 1.25fr;gap:9px;margin-top:4px}.wizard-actions .btn{min-height:56px}.wizard-actions #candidateBack{display:none}.candidate-wizard .field{gap:7px}.candidate-wizard input,.candidate-wizard select,.candidate-wizard textarea{font-size:17px!important;min-height:56px!important}.candidate-wizard textarea{min-height:120px!important}.candidate-wizard select{background:#fff}
+@media(max-width:420px){.candidate-step{min-height:320px}.candidate-step h3{font-size:22px}.quick-times{grid-template-columns:repeat(2,1fr)}}
+</style>
 </head>
-
 <body>
 <div class="app">
 
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-icon">SP</div>
+  <section class="screen active" id="screen-today">
+    <header class="header">
       <div>
-        <div class="brand-name">STROY PODRYAD</div>
-        <div class="brand-sub">by Alqoire(Шариф)</div>
+        <div class="eyebrow">Сегодня</div>
+        <h1 class="title">Добрый день</h1>
+        <div class="subtitle" id="todayDate"></div>
       </div>
-    </div>
-
-    <div class="nav-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
-
-    <nav class="nav">
-      <button class="nav-btn active" data-page="dashboard">
-        <span class="nav-icon">▦</span><span>Главная</span>
+      <button class="head-btn" onclick="refreshAll()" aria-label="Обновить">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4M4 5v5h5"/><path d="M4 13a8 8 0 0 0 14.9 4M20 19v-5h-5"/></svg>
       </button>
-      <button class="nav-btn" data-page="candidates">
-        <span class="nav-icon">♙</span><span>Кандидаты</span>
-      </button>
-      <button class="nav-btn" data-page="calendar">
-  <span class="nav-icon">▦</span><span>Календарь</span>
-</button>
-<button class="nav-btn" data-page="analytics">
-  <span class="nav-icon">▥</span><span>Аналитика</span>
-</button>
-      <button class="nav-btn" data-page="add">
-        <span class="nav-icon">＋</span><span>Добавить кандидата</span>
-      </button>
-    </nav>
-
-    <div class="sidebar-bottom">
-      <div class="system-status">
-        <span class="status-dot"></span>Система подключена
-      </div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">СТРОЙ ПОДРЯД / RECRUITMENT</div>
-        <h1 id="pageTitle">Панель управления</h1>
-        <div class="top-date" id="currentDate"></div>
-      </div>
-      <div class="top-right">
-        <div class="project-chip">ЖК «Светский лес» · Сочи</div>
-        <div class="avatar">SP</div>
-      </div>
     </header>
 
-    <section class="page active" id="page-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card" style="--number-color:#e8eaf0;--glow:rgba(169,191,220,.1)">
-          <div class="stat-label">Всего кандидатов</div>
-          <div class="stat-number" id="statTotal">—</div>
-          <div class="stat-caption">В общей базе</div>
-        </div>
-
-        <div class="stat-card" style="--number-color:#d7c49b;--glow:rgba(215,196,155,.12)">
-          <div class="stat-label">Новые</div>
-          <div class="stat-number" id="statNew">—</div>
-          <div class="stat-caption">Ожидают обработки</div>
-        </div>
-
-        <div class="stat-card" style="--number-color:#a9bfdc;--glow:rgba(169,191,220,.12)">
-          <div class="stat-label">Встречи сегодня</div>
-          <div class="stat-number" id="statToday">—</div>
-          <div class="stat-caption">Назначено на сегодня</div>
-        </div>
-
-        <div class="stat-card" style="--number-color:#9bc9ae;--glow:rgba(155,201,174,.12)">
-          <div class="stat-label">Работают</div>
-          <div class="stat-number" id="statStarted">—</div>
-          <div class="stat-caption">Успешно прошли испытание</div>
-        </div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-head">
-          <div>
-            <div class="section-title">Кандидаты сегодня</div>
-            <div class="section-subtitle">Кому нужно позвонить перед приездом на объект</div>
-          </div>
-          <button class="text-btn" onclick="showPage('candidates')">Все кандидаты →</button>
-        </div>
-
-        <div class="table-wrap">
-          <table style="min-width:850px">
-            <thead>
-              <tr>
-                <th>КАНДИДАТ</th>
-                <th>СПЕЦИАЛЬНОСТЬ</th>
-                <th>ВРЕМЯ</th>
-                <th>СТАТУС</th>
-                <th>БЫСТРАЯ СВЯЗЬ</th>
-              </tr>
-            </thead>
-            <tbody id="todayTable">
-              <tr><td colspan="5" class="loading">Загружаем данные...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="today-mobile" id="todayMobile"></div>
-      </div>
-    </section>
-
-    <section class="page" id="page-candidates">
-      <div class="section-card">
-        <div class="section-head">
-          <div>
-            <div class="section-title">База кандидатов</div>
-            <div class="section-subtitle">Поиск, фильтрация и управление статусами</div>
-          </div>
-          <button class="primary-btn" onclick="showPage('add')">＋ Добавить</button>
-        </div>
-
-        <div class="toolbar">
-          <div class="search-box">
-            <span class="search-symbol">⌕</span>
-            <input class="control" id="searchInput" placeholder="Поиск по ФИО или телефону...">
-          </div>
-
-          <select class="control" id="statusFilter">
-            <option value="">Все статусы</option>
-            <option>Новый</option>
-            <option>Записан</option>
-            <option>Приехал на объект</option>
-            <option>На испытательном сроке</option>
-            <option>Работает</option>
-            <option>Отказ</option>
-            <option>Не приехал</option>
-            <option>Не прошёл испытательный срок</option>
-          </select>
-
-          <select class="control" id="specialtyFilter">
-            <option value="">Все специальности</option>
-            <option>Каменщик</option>
-            <option>Монолитчик</option>
-            <option>Арматурщик</option>
-            <option>Бетонщик</option>
-            <option>Монтажник ЖБК</option>
-            <option>Монтажник металлоконструкций</option>
-            <option>Разнорабочий</option>
-            <option>Штукатур</option>
-            <option>Электрик</option>
-            <option>Сантехник</option>
-            <option>Сварщик</option>
-            <option>Другое</option>
-          </select>
-
-          <button class="secondary-btn" id="refreshButton" type="button" onclick="loadCandidates()">↻ Обновить</button>
-        </div>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>КАНДИДАТ</th><th>СПЕЦИАЛЬНОСТЬ</th><th>ИСТОЧНИК</th>
-                <th>ДОБАВЛЕН</th><th>ВСТРЕЧА</th><th>СТАТУС / ДЕЙСТВИЯ</th>
-              </tr>
-            </thead>
-            <tbody id="candidatesTable">
-              <tr><td colspan="6" class="loading">Загружаем базу...</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mobile-candidates" id="candidatesMobile"></div>
-        <div class="count-label" id="resultCount"></div>
-      </div>
-    </section>
-<section class="page" id="page-calendar">
-  <div class="section-card calendar-card">
-
-    <div class="section-head calendar-heading">
-      <div>
-        <div class="section-title">Календарь встреч</div>
-        <div class="section-subtitle">Расписание кандидатов и управление встречами</div>
-      </div>
-      <button class="secondary-btn" type="button" onclick="loadCalendar()">↻ Обновить</button>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Кандидаты</div><div class="stat-value" id="statCandidates">—</div><div class="stat-note">в базе</div></div>
+      <div class="stat"><div class="stat-label">Сегодня</div><div class="stat-value" id="statToday">—</div><div class="stat-note">кандидатов</div></div>
+      <div class="stat"><div class="stat-label">Новые</div><div class="stat-value" id="statNew">—</div><div class="stat-note">кандидаты</div></div>
+      <div class="stat"><div class="stat-label">В работе</div><div class="stat-value" id="statWorking">—</div><div class="stat-note">кандидаты</div></div>
     </div>
 
+    <section class="section">
+      <div class="section-head"><h2 class="section-title">Встречи сегодня</h2><button class="link-btn" onclick="openScreen('calendar')">Все</button></div>
+      <div id="todayMeetings" class="list"><div class="loading"><div class="spinner"></div>Загружаем встречи</div></div>
+    </section>
+
+
+  </section>
+
+  <section class="screen" id="screen-candidates">
+    <header class="header">
+      <div><div class="eyebrow">CRM</div><h1 class="title">Кандидаты</h1><div class="subtitle">Все кандидаты</div></div>
+      <button class="head-btn" onclick="openAddCandidate()" aria-label="Добавить кандидата">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </header>
+    <div class="search"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="candidateSearch" type="search" placeholder="Имя, телефон, специальность" oninput="renderCandidates()"></div>
+    <div id="candidatesList" class="list"><div class="loading"><div class="spinner"></div>Загружаем кандидатов</div></div>
+  </section>
+
+  <section class="screen" id="screen-calendar">
+    <header class="header">
+      <div><div class="eyebrow">Расписание</div><h1 class="title">Календарь</h1><div class="subtitle">Встречи и собеседования</div></div>
+      <button class="head-btn" onclick="loadCalendar(true)" aria-label="Обновить">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4M4 5v5h5"/><path d="M4 13a8 8 0 0 0 14.9 4M20 19v-5h-5"/></svg>
+      </button>
+    </header>
+    <div class="calendar-switch">
+      <button id="viewDay" onclick="setCalendarView('day')">День</button>
+      <button id="viewWeek" onclick="setCalendarView('week')">Неделя</button>
+      <button id="viewMonth" onclick="setCalendarView('month')">Месяц</button>
+    </div>
     <div class="calendar-toolbar">
-      <div class="calendar-navigation">
-        <button class="secondary-btn" type="button" onclick="changeCalendarDate(-1)">←</button>
-        <button class="secondary-btn" type="button" onclick="goCalendarToday()">Сегодня</button>
-        <button class="secondary-btn" type="button" onclick="changeCalendarDate(1)">→</button>
-        <div class="calendar-period" id="calendarPeriod">Загрузка...</div>
-      </div>
-
-      <div class="calendar-view-switch">
-        <button class="calendar-view-btn active" data-view="month" onclick="setCalendarView('month')">Месяц</button>
-        <button class="calendar-view-btn" data-view="week" onclick="setCalendarView('week')">Неделя</button>
-        <button class="calendar-view-btn" data-view="day" onclick="setCalendarView('day')">День</button>
-      </div>
+      <button class="btn btn-light" onclick="moveCalendar(-1)">‹</button>
+      <div class="calendar-label" id="calendarLabel"></div>
+      <button class="btn btn-light" onclick="moveCalendar(1)">›</button>
     </div>
+    <div id="calendarContent"></div>
+  </section>
 
-    <div class="calendar-legend">
-      <span><i class="legend-dot planned"></i>Запланирована</span>
-      <span><i class="legend-dot rescheduled"></i>Перенесена</span>
-      <span><i class="legend-dot cancelled"></i>Отменена</span>
-    </div>
-
-    <div id="calendarContent">
-      <div class="loading">Загружаем календарь...</div>
-    </div>
-
-  </div>
-</section>
-
-<section class="page" id="page-analytics">
-
-  <div class="stats-grid analytics-stats">
-    <div class="stat-card">
-      <div class="stat-label">ВСЕГО КАНДИДАТОВ</div>
-      <div class="stat-number" id="analyticsTotal">—</div>
-      <div class="stat-caption">Добавлено за период</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">ПРИБЫЛИ НА ОБЪЕКТ</div>
-      <div class="stat-number" id="analyticsArrived">—</div>
-      <div class="stat-caption" id="analyticsArrivalConversion">Конверсия: —</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">НАЧАЛИ РАБОТАТЬ</div>
-      <div class="stat-number" id="analyticsStarted">—</div>
-      <div class="stat-caption" id="analyticsStartConversion">Конверсия: —</div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-label">ВСТРЕЧИ</div>
-      <div class="stat-number" id="analyticsMeetings">—</div>
-      <div class="stat-caption">За выбранный период</div>
-    </div>
-  </div>
-
-  <div class="section-card">
-
-    <div class="section-head">
-      <div>
-        <div class="section-title">Показатели рекрутинга</div>
-        <div class="section-subtitle" id="analyticsPeriodLabel">
-          Выберите период анализа
-        </div>
-      </div>
-
-      <button class="secondary-btn" type="button"
-        onclick="loadRecruitmentAnalytics()">
-        ↻ Обновить
+  <section class="screen" id="screen-objects">
+    <header class="header">
+      <div><div class="eyebrow">Справочник</div><h1 class="title">Объекты</h1><div class="subtitle">Объекты для кандидатов</div></div>
+      <button class="head-btn" onclick="openAddObject()" aria-label="Добавить объект">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-    </div>
+    </header>
+    <div id="objectsList" class="object-list"><div class="loading"><div class="spinner"></div>Загружаем объекты</div></div>
+  </section>
 
-    <div class="toolbar analytics-toolbar">
-      <select class="control" id="analyticsPeriod"
-        onchange="handleAnalyticsPeriodChange()">
-        <option value="today">Сегодня</option>
-        <option value="week">Последние 7 дней</option>
-        <option value="month" selected>Текущий месяц</option>
-        <option value="lastMonth">Прошлый месяц</option>
-        <option value="all">Всё время</option>
-        <option value="custom">Произвольный период</option>
-      </select>
-
-      <input class="control" type="date" id="analyticsDateStart"
-        style="display:none">
-
-      <input class="control" type="date" id="analyticsDateEnd"
-        style="display:none">
-
-      <button class="primary-btn" type="button"
-        onclick="loadRecruitmentAnalytics()">
-        Применить
+  <section class="screen" id="screen-analytics">
+    <header class="header">
+      <div><div class="eyebrow">Отчёт</div><h1 class="title">Аналитика</h1><div class="subtitle">Подбор персонала</div></div>
+      <button class="head-btn" onclick="loadAnalytics()" aria-label="Обновить">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 16v-5M12 16V7M16 16v-9"/></svg>
       </button>
-    </div>
-
-    <div id="analyticsContent" class="analytics-content">
-      <div class="loading">Загрузка аналитики...</div>
-    </div>
-
-  </div>
-
-</section>
-
-    <section class="page" id="page-add">
-      <div class="form-layout">
-        <div class="form-panel">
-          <div class="section-title" style="font-size:17px">Новая запись</div>
-          <div class="section-subtitle" style="margin-bottom:24px">
-            Создание встречи и добавление кандидата в базу
-          </div>
-
-          <form id="candidateForm">
-            <div class="form-grid">
-              <div class="field">
-                <label for="name">ФИО кандидата *</label>
-                <input class="field-control" id="name" name="name" placeholder="Иванов Иван Иванович" required>
-              </div>
-
-              <div class="field">
-                <label for="phone">Номер телефона *</label>
-                <input class="field-control" id="phone" name="phone" type="tel" placeholder="+7 999 123-45-67" required>
-              </div>
-
-              <div class="field">
-                <label for="specialty">Специальность *</label>
-                <select class="field-control" id="specialty" name="specialty" required>
-                  <option value="">Выберите специальность</option>
-                  <option>Каменщик</option><option>Монолитчик</option>
-                  <option>Арматурщик</option><option>Бетонщик</option>
-                  <option>Монтажник ЖБК</option><option>Монтажник металлоконструкций</option>
-                  <option>Разнорабочий</option><option>Штукатур</option>
-                  <option>Электрик</option><option>Сантехник</option>
-                  <option>Сварщик</option><option>Другое</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="source">Источник кандидата *</label>
-                <select class="field-control" id="source" name="source" required>
-                  <option value="">Выберите источник</option>
-                  <option>Авито</option><option>ВКонтакте</option>
-                  <option>Telegram</option><option>Рекомендация</option>
-                  <option>Знакомые</option><option>Другой</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="object">Строительный объект *</label>
-                <select class="field-control" id="object" name="object" required>
-                  <option value="">Загрузка объектов...</option>
-                </select>
-
-                <button type="button" class="secondary-btn" onclick="showNewObjectInput()">
-                  ＋ Добавить новый объект
-                </button>
-
-                <div id="newObjectBox" style="display:none;margin-top:8px;">
-                  <input class="field-control" id="newObjectName" type="text" placeholder="Название нового объекта">
-                  <button type="button" class="primary-btn" onclick="saveNewObject()" style="margin-top:9px;">
-                    Сохранить объект
-                  </button>
-                </div>
-
-                <div class="field-hint">Выбери сохранённый объект или добавь новый.</div>
-              </div>
-
-              <div class="field">
-                <label for="date">Дата встречи *</label>
-                <input class="field-control" id="date" name="date" type="date" required>
-              </div>
-
-              <div class="field">
-                <label for="time">Время встречи *</label>
-                <select class="field-control" id="time" name="time" required></select>
-              </div>
-
-              <div class="field full">
-                <label for="comment">Комментарий</label>
-                <textarea class="field-control" id="comment" name="comment" placeholder="Опыт, количество человек, дополнительные сведения..."></textarea>
-                <div class="field-hint">Например: опыт 5 лет, готов приехать с напарником, есть собственный инструмент.</div>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button class="primary-btn" id="submitButton" type="submit">Добавить кандидата и создать встречу</button>
-              <button class="secondary-btn" type="reset">Очистить форму</button>
-            </div>
-            <div class="message" id="formMessage"></div>
-          </form>
-        </div>
-
-        <aside class="info-panel">
-          <h3>Информация об объекте</h3>
-          <div class="info-line"><span>◆</span><span>ЖК «Светский лес», Сочи, ул. Краснодонская</span></div>
-          <div class="info-line"><span>◷</span><span>Встречи доступны с 08:00 до 19:00</span></div>
-          <div class="info-line"><span>▣</span><span>Продолжительность встречи в календаре — 30 минут</span></div>
-          <div class="info-line"><span>✓</span><span>После записи кандидат сохраняется в Google Sheets, а встреча появляется в Google Calendar</span></div>
-          <div style="border-top:1px solid var(--border);margin-top:20px;padding-top:17px">
-            <div class="eyebrow">STROY PODRYAD</div>
-            <div style="color:var(--muted);font-size:10px;line-height:1.7">
-              Все данные хранятся в вашей Google-таблице и календаре.
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
+    </header>
+    <div id="analyticsContent" class="analytics-grid"><div class="loading"><div class="spinner"></div>Загружаем аналитику</div></div>
+  </section>
 </div>
 
-<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+<button class="fab" id="fab" onclick="openAddCandidate()" aria-label="Добавить кандидата">
+  <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-screen="today" onclick="openScreen('today')"><svg class="icon" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21v-7h6v7"/></svg><span>Сегодня</span></button>
+  <button class="nav-item" data-screen="candidates" onclick="openScreen('candidates')"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11a3 3 0 1 0 0-6M18 14a5 5 0 0 1 3 4"/></svg><span>Кандидаты</span></button>
+  <button class="nav-item" data-screen="calendar" onclick="openScreen('calendar')"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg><span>Календарь</span></button>
+  <button class="nav-item" data-screen="objects" onclick="openScreen('objects')"><svg class="icon" viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13"/><path d="M3 10h18M8 21v-6h8v6"/></svg><span>Объекты</span></button>
+  <button class="nav-item" data-screen="analytics" onclick="openScreen('analytics')"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 16v-5M12 16V7M16 16v-9"/></svg><span>Аналитика</span></button>
+</nav>
+
+<div class="modal" id="candidateModal" onclick="backdropClose(event,'candidateModal')">
+  <div class="sheet candidate-sheet">
+    <div class="handle"></div>
+    <div class="sheet-head"><div><div class="eyebrow">Новый кандидат</div><h2 class="sheet-title">Добавить</h2></div><button class="close" onclick="closeModal('candidateModal')"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div class="candidate-progress"><span id="candidateStepLabel">1 из 5</span><div class="candidate-progress-track"><i id="candidateProgressBar"></i></div></div>
+    <form class="form candidate-wizard" id="candidateForm" onsubmit="createCandidateFromForm(event)">
+      <section class="candidate-step active" data-step="1"><div class="context-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></div><div><h3>Как зовут кандидата?</h3><p>Начнём с имени — дальше проведу по остальным полям.</p></div><div class="field"><label for="newName">Имя</label><input id="newName" required autocomplete="name" placeholder="Например, Алексей" enterkeyhint="next"></div></section>
+      <section class="candidate-step" data-step="2"><div class="context-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M6 3h4l2 5-3 2a15 15 0 0 0 5 5l2-3 5 2v4c0 1-1 2-2 2C10 20 4 14 4 5c0-1 1-2 2-2z"/></svg></div><div><h3>Как связаться?</h3><p>Телефон нужен для связи с кандидатом.</p></div><div class="field"><label for="newPhone">Телефон</label><input id="newPhone" required type="tel" autocomplete="tel" placeholder="+31 6 12345678" enterkeyhint="next"></div></section>
+      <section class="candidate-step" data-step="3"><div class="context-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V8l8-4 8 4v12"/><path d="M8 20v-6h8v6M9 9h6"/></svg></div><div><h3>Кого ищем?</h3><p>Укажи специальность и, если нужно, объект.</p></div><div class="field"><label for="newSpecialty">Специальность</label><input id="newSpecialty" required placeholder="Например, каменщик" enterkeyhint="next"></div><div class="field"><label for="newObject">Объект</label><select id="newObject"><option value="">Выберите объект</option></select></div></section>
+      <section class="candidate-step" data-step="4"><div class="context-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 9h18"/></svg></div><div><h3>Когда встречаемся?</h3><p>Выбери дату и время собеседования.</p></div><div class="context-row"><div class="field"><label for="newDate">Дата</label><input id="newDate" required type="date"></div><div class="field"><label for="newTime">Время</label><input id="newTime" required type="time" value="10:00"></div></div><div class="quick-times"><button type="button" onclick="setCandidateTime('10:00')">10:00</button><button type="button" onclick="setCandidateTime('12:00')">12:00</button><button type="button" onclick="setCandidateTime('15:00')">15:00</button><button type="button" onclick="setCandidateTime('18:00')">18:00</button></div></section>
+      <section class="candidate-step" data-step="5"><div class="context-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h6"/></svg></div><div><h3>Что ещё важно?</h3><p>Комментарий необязательный. Можно сразу сохранить кандидата.</p></div><div class="field"><label for="newComment">Комментарий</label><textarea id="newComment" placeholder="Например: опыт 5 лет, готов выйти завтра"></textarea></div></section>
+      <div class="wizard-actions"><button id="candidateBack" class="btn btn-light" type="button" onclick="candidatePrev()">Назад</button><button id="candidateNext" class="btn btn-dark" type="button" onclick="candidateNext()">Далее</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="profileModal" onclick="backdropClose(event,'profileModal')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-head"><h2 class="sheet-title" id="profileName">Кандидат</h2><button class="close" onclick="closeModal('profileModal')"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div id="profileContent"><div class="loading"><div class="spinner"></div>Загружаем профиль</div></div>
+  </div>
+</div>
+
+<div class="modal" id="objectModal" onclick="backdropClose(event,'objectModal')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-head"><h2 class="sheet-title">Новый объект</h2><button class="close" onclick="closeModal('objectModal')"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <form class="form" onsubmit="createObject(event)">
+      <div class="field"><label>Название объекта</label><input id="objectName" required></div>
+      <div class="form-actions"><button class="btn btn-dark btn-full" type="submit">Добавить объект</button><button class="btn btn-light btn-full" type="button" onclick="closeModal('objectModal')">Отмена</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="meetingModal" onclick="backdropClose(event,'meetingModal')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-head"><h2 class="sheet-title">Встреча</h2><button class="close" onclick="closeModal('meetingModal')"><svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+    <div id="meetingContent"></div>
+  </div>
+</div>
+
+<div class="modal" id="rescheduleModal" onclick="backdropClose(event,'rescheduleModal')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-head">
+      <div>
+        <h2 class="sheet-title">Перенести встречу</h2>
+        <div id="rescheduleCandidateName" class="minor" style="margin-top:6px"></div>
+      </div>
+      <button class="close" onclick="closeModal('rescheduleModal')">
+        <svg class="icon" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <form class="form" onsubmit="submitReschedule(event)">
+      <div class="field">
+        <label>Новая дата</label>
+        <input id="rescheduleDate" required type="date">
+      </div>
+
+      <div class="field">
+        <label>Новое время</label>
+        <input id="rescheduleTime" required type="time" step="900">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <button class="btn btn-light" type="button" onclick="setRescheduleDay(0)">Сегодня</button>
+        <button class="btn btn-light" type="button" onclick="setRescheduleDay(1)">Завтра</button>
+      </div>
+
+      <div class="field">
+        <label>Причина переноса <span style="font-weight:500;color:var(--muted)">(необязательно)</span></label>
+        <textarea id="rescheduleReason" placeholder="Например: кандидат попросил перенести"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-dark btn-full" id="rescheduleSubmit" type="submit">Перенести встречу</button>
+        <button class="btn btn-light btn-full" type="button" onclick="closeModal('rescheduleModal')">Отмена</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-"use strict";
+'use strict';
 
-const STATUSES = [
-  "Новый",
-  "Записан",
-  "Приехал на объект",
-  "На испытательном сроке",
-  "Работает",
-  "Отказ",
-  "Не приехал",
-  "Не прошёл испытательный срок"
-];
-
-let allCandidates = [];
-let isLoadingCandidates = false;
-let isSubmittingCandidate = false;
-
-let calendarDate = new Date();
-let calendarView = "month";
-let calendarMeetings = [];
-let isLoadingCalendar = false;
-let calendarRequestNumber = 0;
-
-const pageTitles = {
-  dashboard: "Панель управления",
-  candidates: "База кандидатов",
-  calendar: "Календарь встреч",
-  analytics: "Аналитика рекрутинга",
-  add: "Добавление кандидата"
+const state = {
+  screen:'today',
+  candidates:[],
+  todayCandidates:[],
+  meetings:[],
+  objects:[],
+  calendarDate:new Date(),
+  calendarView:'day',
+  calendarRequest:0,
+  candidateId:null,
+  rescheduleMeetingId:null
 };
 
-/**
- * Безопасный вызов серверных функций Google Apps Script.
- * В локальном предпросмотре (без google) не падает, а показывает понятное сообщение.
- */
-function isGoogleScriptAvailable() {
-  return typeof google !== "undefined" &&
-    google &&
-    google.script &&
-    typeof google.script.run === "object";
+const $ = id => document.getElementById(id);
+
+function serverCall(method,...args){
+  return new Promise((resolve,reject)=>{
+    if(!window.google || !google.script || !google.script.run){
+      reject(new Error('google.script.run недоступен. Откройте приложение через Web App Apps Script.'));
+      return;
+    }
+    let runner=google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(err=>reject(new Error(err && err.message ? err.message : String(err))));
+    try{ runner[method](...args); }
+    catch(e){ reject(e); }
+  });
 }
 
-function runServer(functionName, args, onSuccess, onFailure) {
-  const fail = typeof onFailure === "function" ? onFailure : function () {};
-  const ok = typeof onSuccess === "function" ? onSuccess : function () {};
-
-  if (!isGoogleScriptAvailable()) {
-    console.warn(
-      "[STROY PODRYAD] google.script.run недоступен. " +
-      "Открой приложение через развёрнутый Google Apps Script Web App."
-    );
-    fail({
-      message:
-        "Локальный режим: сервер Google Apps Script недоступен. " +
-        "Открой ссылку Web App из развёртывания GAS."
-    });
-    return;
-  }
-
-  let runner = google.script.run
-    .withSuccessHandler(ok)
-    .withFailureHandler(function (error) {
-      fail(error || { message: "Ошибка сервера" });
-    });
-
-  if (typeof runner[functionName] !== "function") {
-    fail({ message: "Серверная функция не найдена: " + functionName });
-    return;
-  }
-
-  runner[functionName].apply(runner, Array.isArray(args) ? args : []);
+function showToast(message,type=''){
+  const el=$('toast'); if(!el)return;
+  el.textContent=message; el.className='toast show '+type;
+  clearTimeout(showToast.t); showToast.t=setTimeout(()=>el.className='toast',3500);
 }
 
+function escapeHtml(v){
+  return String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function pad(n){return String(n).padStart(2,'0')}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function todayYmd(){return ymd(new Date())}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function formatDate(v){
+  if(!v)return '';
+  const s=String(v);
+  const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(m)return `${m[3]}.${m[2]}.${m[1]}`;
+  const d=new Date(v); return isNaN(d)?s:d.toLocaleDateString('ru-RU');
+}
+function formatTime(v){
+  if(!v)return '';
+  const s=String(v);
+  const m=s.match(/(?:T|\s)(\d{2}):(\d{2})/);
+  if(m)return m[1]+':'+m[2];
+  const t=s.match(/^(\d{1,2}):(\d{2})/); if(t)return pad(t[1])+':'+t[2];
+  return s;
+}
+function monthName(d){return d.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})}
+function dayLabel(d){return d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})}
+function normalizeDate(v){
+  if(!v)return '';
+  const s=String(v);
+  const m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  return m?`${m[1]}-${m[2]}-${m[3]}`:'';
+}
+function candidateDate(c){return normalizeDate(c.added || c.createdAt || c.date || c.created || '')}
+function meetingDate(m){return normalizeDate(m.date || m.startDate || m.start || m.datetime || '')}
+function meetingTime(m){return formatTime(m.time || m.startTime || m.start || m.datetime || '')}
+function meetingName(m){return m.name || m.candidateName || m.title || 'Кандидат'}
+function meetingObject(m){return m.object || m.objectName || ''}
+function meetingId(m){return m.meetingId || m.id || ''}
+function candidateId(c){return c.candidateId || c.id || ''}
 
-function showToast(message, type, title, duration) {
-  type = type || "info";
-  duration = duration == null ? 4200 : duration;
+function openScreen(name){
+  state.screen=name;
+  document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id==='screen-'+name));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.screen===name));
+  $('fab').style.display=name==='candidates'?'grid':'none';
+  if(name==='today') refreshAll();
+  if(name==='candidates' && !state.candidates.length) loadCandidates();
+  if(name==='calendar') loadCalendar();
+  if(name==='objects') loadObjects();
+  if(name==='analytics') loadAnalytics();
+  window.scrollTo(0,0);
+}
 
-  const container = document.getElementById("toastContainer");
-  if (!container) {
-    console.log("[toast]", type, message);
-    return;
+let modalScrollY=0;
+
+function resetIOSViewport(){
+  const meta=document.getElementById('iosViewport') || document.querySelector('meta[name="viewport"]');
+  if(!meta)return;
+  const normal='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+  // iOS sometimes keeps the visual zoom after an input loses focus.
+  meta.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+  requestAnimationFrame(()=>{
+    meta.setAttribute('content',normal);
+    requestAnimationFrame(()=>{
+      window.scrollTo(0,modalScrollY||0);
+    });
+  });
+}
+
+function openModal(id){
+  const modal=$(id);
+  if(!modal)return;
+
+  modalScrollY=window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.dataset.modalScrollY=String(modalScrollY);
+  document.body.style.position='fixed';
+  document.body.style.top=`-${modalScrollY}px`;
+  document.body.style.left='0';
+  document.body.style.right='0';
+  document.body.style.width='100%';
+  document.body.classList.add('modal-open');
+  document.documentElement.classList.add('modal-open');
+  document.documentElement.style.overflow='hidden';
+  modal.classList.add('open');
+}
+
+function closeModal(id){
+  const modal=$(id);
+  if(!modal)return;
+
+  const active=document.activeElement;
+  if(active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)){
+    active.blur();
   }
 
-  const icons = {
-    success: "✓",
-    error: "!",
-    warning: "!",
-    info: "i"
+  modal.classList.remove('keyboard-open','open');
+
+  if(!document.querySelector('.modal.open')){
+    document.body.classList.remove('modal-open');
+    document.documentElement.classList.remove('modal-open');
+    document.documentElement.style.overflow='';
+
+    const y=Number(document.body.dataset.modalScrollY||modalScrollY||0);
+    document.body.style.position='';
+    document.body.style.top='';
+    document.body.style.left='';
+    document.body.style.right='';
+    document.body.style.width='';
+
+    requestAnimationFrame(()=>{
+      resetIOSViewport();
+      window.scrollTo(0,y);
+      document.documentElement.scrollTop=y;
+      document.body.scrollTop=y;
+    });
+  }
+}
+
+function backdropClose(e,id){
+  if(e.target.id===id)closeModal(id);
+}
+
+// On iPhone the Return/OK key should finish a single-line field instead of
+// leaving the visual viewport zoomed in.
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const el=e.target;
+  if(!el.matches('input,select'))return;
+
+  e.preventDefault();
+  el.blur();
+
+  const modal=el.closest('.modal');
+  if(modal){
+    setTimeout(()=>{
+      modal.classList.remove('keyboard-open');
+      resetIOSViewport();
+      window.scrollTo(0,modalScrollY||0);
+    },80);
+  }
+});
+
+document.addEventListener('focusout',e=>{
+  const el=e.target;
+  if(!el.matches('input,select'))return;
+
+  setTimeout(()=>{
+    if(!document.querySelector('.modal input:focus,.modal select:focus')){
+      document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('keyboard-open'));
+      resetIOSViewport();
+      window.scrollTo(0,modalScrollY||0);
+    }
+  },120);
+});
+
+// iPhone/iPad: при появлении клавиатуры sheet подстраивается под реальную высоту viewport.
+// После OK/Enter/закрытия клавиатуры возвращаем нормальный размер без залипания zoom.
+(function setupKeyboardViewport(){
+  if(!window.visualViewport)return;
+
+  const sync=()=>{
+    const vv=window.visualViewport;
+    const keyboardOpen=(window.innerHeight-vv.height)>120;
+    document.querySelectorAll('.modal.open').forEach(m=>{
+      m.classList.toggle('keyboard-open',keyboardOpen);
+    });
+
+    document.documentElement.style.setProperty('--vvh', vv.height+'px');
+
+    // Не даём браузеру оставить страницу в увеличенном/сдвинутом состоянии.
+    if(!keyboardOpen && document.querySelector('.modal.open')){
+      requestAnimationFrame(()=>{
+        window.scrollTo(0,modalScrollY||0);
+        document.documentElement.scrollTop=modalScrollY||0;
+      });
+    }
   };
 
-  const titles = {
-    success: title || "Готово",
-    error: title || "Ошибка",
-    warning: title || "Внимание",
-    info: title || "Сообщение"
-  };
+  window.visualViewport.addEventListener('resize',sync);
+  window.visualViewport.addEventListener('scroll',sync);
+  window.addEventListener('orientationchange',()=>setTimeout(sync,250));
 
-  const toast = document.createElement("div");
-  toast.className = "toast " + type;
-  toast.setAttribute("role", "status");
+  document.addEventListener('focusin',e=>{
+    if(!e.target.matches('input,textarea,select'))return;
+    const modal=e.target.closest('.modal');
+    if(!modal)return;
 
-  const icon = document.createElement("div");
-  icon.className = "toast-icon";
-  icon.textContent = icons[type] || "i";
+    modal.classList.add('keyboard-open');
 
-  const body = document.createElement("div");
-  body.className = "toast-body";
-
-  const titleEl = document.createElement("div");
-  titleEl.className = "toast-title";
-  titleEl.textContent = titles[type];
-
-  const textEl = document.createElement("div");
-  textEl.className = "toast-text";
-  textEl.textContent = String(message || "");
-
-  body.appendChild(titleEl);
-  body.appendChild(textEl);
-
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "toast-close";
-  close.setAttribute("aria-label", "Закрыть");
-  close.textContent = "×";
-
-  toast.appendChild(icon);
-  toast.appendChild(body);
-  toast.appendChild(close);
-  container.appendChild(toast);
-
-  // animate in
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(()=>{
+      try{
+        e.target.scrollIntoView({block:'center',inline:'nearest',behavior:'smooth'});
+      }catch(_){}
+    },220);
   });
 
-  let closed = false;
-
-  function closeToast() {
-    if (closed) return;
-    closed = true;
-    toast.classList.remove("show");
-    toast.classList.add("hide");
-    setTimeout(() => toast.remove(), 300);
-  }
-
-  close.addEventListener("click", closeToast);
-
-  if (duration > 0) {
-    setTimeout(closeToast, duration);
-  }
-
-  return closeToast;
-}
-
-function notifySuccess(message, title) {
-  return showToast(message, "success", title);
-}
-
-function notifyError(message, title) {
-  return showToast(message, "error", title, 6000);
-}
-
-function notifyWarning(message, title) {
-  return showToast(message, "warning", title, 5500);
-}
-
-function notifyInfo(message, title) {
-  return showToast(message, "info", title);
-}
-
-
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[char]);
-}
-
-function makeText(tag, className, value) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  element.textContent = value ?? "";
-  return element;
-}
-
-function getTomorrow() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
-}
-
-function getTodayKey() {
-  const date = new Date();
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
-}
-
-/*
- * Поддерживает даты вида:
- * 23.11.2026 15:00
- * 23.11.2026 в 15:00
- * 2026-11-23T15:00
- * 2026-11-23 15:00
- */
-function parseMeetingDate(value) {
-  if (!value) return null;
-
-  const text = String(value).trim();
-
-  let match = text.match(/^(\d{2})\.(\d{2})\.(\d{4})/);
-
-  if (match) {
-    return [
-      match[3],
-      match[2],
-      match[1]
-    ].join("-");
-  }
-
-  match = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
-
-  if (match) {
-    return [
-      match[1],
-      match[2],
-      match[3]
-    ].join("-");
-  }
-
-  const parsed = new Date(text);
-
-  if (!Number.isNaN(parsed.getTime())) {
-    return [
-      parsed.getFullYear(),
-      String(parsed.getMonth() + 1).padStart(2, "0"),
-      String(parsed.getDate()).padStart(2, "0")
-    ].join("-");
-  }
-
-  return null;
-}
-
-function getMeetingTime(value) {
-  if (!value) return "Время не указано";
-
-  const text = String(value);
-
-  const match = text.match(/(\d{1,2}:\d{2})/);
-
-  return match ? match[1] : "Время не указано";
-}
-
-function isTerminalStatus(status) {
-  return [
-    "Приехал на объект",
-    "Работает",
-    "Отказ",
-    "Не приехал",
-    "Не прошёл испытательный срок"
-  ].includes(String(status || "").trim());
-}
-
-function getTodayCandidates() {
-  const today = getTodayKey();
-
-  return allCandidates
-    .filter(candidate => {
-      const meetingDate = parseMeetingDate(candidate.meeting);
-
-      if (meetingDate !== today) return false;
-      if (isTerminalStatus(candidate.status)) return false;
-
-      return true;
-    })
-    .sort((a, b) => {
-      return getMeetingTime(a.meeting).localeCompare(
-        getMeetingTime(b.meeting)
-      );
-    });
-}
-
-/* =====================================================
-   КАЛЕНДАРЬ ВСТРЕЧ
-===================================================== */
-
-const CALENDAR_MONTHS = [
-  "январь", "февраль", "март", "апрель",
-  "май", "июнь", "июль", "август",
-  "сентябрь", "октябрь", "ноябрь", "декабрь"
-];
-
-const CALENDAR_WEEKDAYS = [
-  "Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"
-];
-
-function dateKey(date) {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
-}
-
-function parseCalendarKey(key) {
-  const parts = key.split("-").map(Number);
-  return new Date(parts[0], parts[1] - 1, parts[2]);
-}
-
-function addCalendarDays(date, amount) {
-  const result = new Date(date);
-  result.setDate(result.getDate() + amount);
-  return result;
-}
-
-function getCalendarMonday(date) {
-  const result = new Date(date);
-  const day = result.getDay() || 7;
-  result.setDate(result.getDate() - day + 1);
-  result.setHours(0, 0, 0, 0);
-  return result;
-}
-
-function formatCalendarPeriod() {
-  if (calendarView === "day") {
-    return new Intl.DateTimeFormat("ru-RU", {
-      day:"numeric",
-      month:"long",
-      year:"numeric"
-    }).format(calendarDate);
-  }
-
-  if (calendarView === "week") {
-    const monday = getCalendarMonday(calendarDate);
-    const sunday = addCalendarDays(monday, 6);
-
-    const first = new Intl.DateTimeFormat("ru-RU", {
-      day:"numeric",
-      month:"short"
-    }).format(monday);
-
-    const second = new Intl.DateTimeFormat("ru-RU", {
-      day:"numeric",
-      month:"short",
-      year:"numeric"
-    }).format(sunday);
-
-    return first + " — " + second;
-  }
-
-  return CALENDAR_MONTHS[calendarDate.getMonth()] +
-    " " + calendarDate.getFullYear();
-}
-
-function getCalendarRange() {
-  let start;
-  let end;
-
-  if (calendarView === "day") {
-    start = new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth(),
-      calendarDate.getDate()
-    );
-
-    end = addCalendarDays(start, 1);
-
-  } else if (calendarView === "week") {
-    start = getCalendarMonday(calendarDate);
-    end = addCalendarDays(start, 7);
-
-  } else {
-    start = new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth(),
-      1
-    );
-
-    end = new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth() + 1,
-      1
-    );
-  }
-
-  return {
-    start:dateKey(start),
-    end:dateKey(end)
-  };
-}
-
-function setCalendarView(view) {
-  if (!["month", "week", "day"].includes(view)) return;
-
-  calendarView = view;
-
-  document.querySelectorAll(".calendar-view-btn").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.view === view
-    );
+  document.addEventListener('focusout',()=>{
+    setTimeout(sync,180);
   });
 
+  sync();
+})();
+
+async function loadCandidates(){
+  setLoading('candidatesList','Загружаем кандидатов');
+  try{
+    const r=await serverCall('getCandidates');
+
+    // Совместимость с текущим Code.gs: обычно {success,candidates,stats},
+    // но не ломаемся, если backend вернул массив/данные в другом контейнере.
+    if(r && r.success===false){
+      throw new Error(r.error || r.message || 'Не удалось получить кандидатов');
+    }
+
+    const list =
+      Array.isArray(r) ? r :
+      Array.isArray(r?.candidates) ? r.candidates :
+      Array.isArray(r?.data) ? r.data :
+      Array.isArray(r?.result) ? r.result : [];
+
+    state.candidates=list;
+
+    const stats=r?.stats || r?.statistics || {};
+    $('statCandidates').textContent =
+      stats.total ?? stats.count ?? state.candidates.length;
+    $('statToday').textContent =
+      stats.today ?? stats.todayCount ?? 0;
+    $('statNew').textContent =
+      stats.newCount ?? stats.new ?? 0;
+    $('statWorking').textContent =
+      stats.started ?? stats.working ?? 0;
+
+    renderCandidates();
+  }catch(e){
+    console.error('getCandidates:',e);
+    const msg=e?.message || String(e) || 'Неизвестная ошибка';
+    $('candidatesList').innerHTML =
+      emptyHtml('Ошибка загрузки',msg) +
+      '<div style="display:flex;justify-content:center;margin-top:10px"><button class="btn btn-light" onclick="loadCandidates()">Повторить</button></div>';
+    showToast(msg,'error');
+  }
+}
+
+async function loadTodayCandidates(){
+  try{
+    let r;
+    try{r=await serverCall('getTodayCandidates')}catch(_){r=null}
+    if(r && r.success!==false){
+      state.todayCandidates=Array.isArray(r.candidates)?r.candidates:(Array.isArray(r.data)?r.data:[]);
+    }else{
+      state.todayCandidates=state.candidates.filter(c=>candidateDate(c)===todayYmd());
+    }
+  }catch(e){
+    state.todayCandidates=state.candidates.filter(c=>candidateDate(c)===todayYmd());
+  }
+  renderTodayCandidates();
+}
+
+function renderCandidates(){
+  const q=($('candidateSearch')?.value||'').trim().toLowerCase();
+  let list=state.candidates;
+  if(q)list=list.filter(c=>[c.name,c.phone,c.specialty,c.object,c.comment,c.status].filter(Boolean).join(' ').toLowerCase().includes(q));
+  $('candidatesList').innerHTML=list.length?list.map(renderCandidateCard).join(''):emptyHtml('Кандидатов не найдено','Попробуйте изменить поиск.');
+}
+
+function renderTodayCandidates(){
+  $('todayCandidates').innerHTML=state.todayCandidates.length?state.todayCandidates.map(renderCandidateCard).join(''):emptyHtml('Сегодня кандидатов нет','Новых кандидатов за сегодня нет.');
+}
+
+function renderCandidateCard(c){
+  const id=candidateId(c), name=c.name||'Без имени', specialty=c.specialty||'', phone=c.phone||'', object=c.object||'', meeting=c.meeting||'', status=c.status||'Новый';
+  return `<article class="candidate-card">
+    <div class="row"><div style="min-width:0"><div class="name">${escapeHtml(name)}</div>${specialty?`<div class="minor">${escapeHtml(specialty)}</div>`:''}</div><div class="pill">${escapeHtml(status)}</div></div>
+    <div class="meta">${phone?`<a class="phone-link" href="tel:${escapeHtml(phone)}" onclick="event.stopPropagation()">${escapeHtml(phone)}</a>`:''}${object?`<div>${escapeHtml(object)}</div>`:''}${meeting?`<div>Встреча: ${escapeHtml(formatDate(meeting))}</div>`:''}</div>
+    <div class="actions">
+      <button class="btn btn-light" onclick="openCandidateProfile('${escapeHtml(id)}')">Подробнее</button>
+      ${phone?`<a class="btn btn-outline" href="tel:${escapeHtml(phone)}">Позвонить</a>`:''}
+    </div>
+    ${meetingId(c)?`<div class="actions" style="margin-top:8px">
+      <button class="btn btn-light" onclick="rescheduleCandidateMeeting('${escapeHtml(meetingId(c))}')">Перенести</button>
+      <button class="btn btn-danger" onclick="cancelCandidateMeeting('${escapeHtml(meetingId(c))}')">Отменить</button>
+    </div>`:''}
+  </article>`;
+}
+
+async function loadTodayMeetings(){
+  const box=$('todayMeetings');
+  setLoading('todayMeetings','Загружаем встречи');
+  const start=todayYmd(), end=ymd(addDays(new Date(),1));
+  try{
+    const r=await serverCall('getCalendarMeetings',start,end);
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось загрузить встречи');
+    state.meetings=Array.isArray(r.meetings)?r.meetings:[];
+    const todays=state.meetings.filter(m=>meetingDate(m)===start);
+    box.innerHTML=todays.length?todays.map(renderTodayMeeting).join(''):emptyHtml('Сегодня встреч нет','На сегодня в календаре ничего не запланировано.');
+  }catch(e){
+    console.error('loadTodayMeetings',e);
+    box.innerHTML=`<div class="card empty"><strong>Не удалось загрузить встречи</strong><div>${escapeHtml(e.message||'Ошибка сервера')}</div><button class="btn btn-light" style="margin-top:14px" onclick="loadTodayMeetings()">Повторить</button></div>`;
+  }
+}
+
+function renderTodayMeeting(m){
+  const id=meetingId(m), name=meetingName(m), time=meetingTime(m), spec=m.specialty||m.position||'', object=meetingObject(m);
+  return `<button class="today-card" onclick="openMeeting('${escapeHtml(id)}')"><div class="row"><div style="text-align:left;min-width:0"><div class="name">${escapeHtml(name)}</div>${spec?`<div class="minor">${escapeHtml(spec)}</div>`:''}</div>${time?`<div class="time-pill">${escapeHtml(time)}</div>`:''}</div><div class="meta" style="text-align:left">${object?`<div>${escapeHtml(object)}</div>`:''}<div>Встреча</div></div></button>`;
+}
+
+function getCalendarRange(){
+  const d=new Date(state.calendarDate);
+  if(state.calendarView==='day')return {start:ymd(d),end:ymd(addDays(d,1))};
+  if(state.calendarView==='week'){
+    const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day);
+    return {start:ymd(x),end:ymd(addDays(x,7))};
+  }
+  const start=new Date(d.getFullYear(),d.getMonth(),1), end=new Date(d.getFullYear(),d.getMonth()+1,1);
+  return {start:ymd(start),end:ymd(end)};
+}
+
+async function loadCalendar(force=false){
+  const req=++state.calendarRequest;
+  $('calendarContent').innerHTML='<div class="loading"><div class="spinner"></div>Загружаем встречи</div>';
+  const range=getCalendarRange(); renderCalendarHeader();
+  try{
+    const r=await serverCall('getCalendarMeetings',range.start,range.end);
+    if(req!==state.calendarRequest)return;
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось загрузить встречи');
+    state.meetings=Array.isArray(r.meetings)?r.meetings:[];
+    renderCalendar();
+  }catch(e){
+    if(req!==state.calendarRequest)return;
+    console.error('loadCalendar',e);
+    $('calendarContent').innerHTML=`<div class="card empty"><strong>Не удалось загрузить календарь</strong><div>${escapeHtml(e.message||'Ошибка сервера')}</div><button class="btn btn-light" style="margin-top:14px" onclick="loadCalendar(true)">Повторить</button></div>`;
+  }
+}
+
+function renderCalendarHeader(){
+  let label='';
+  if(state.calendarView==='day')label=dayLabel(state.calendarDate);
+  else if(state.calendarView==='week'){const d=new Date(state.calendarDate);const day=(d.getDay()+6)%7;const s=addDays(d,-day),e=addDays(s,6);label=s.getMonth()===e.getMonth()?`${s.getDate()}–${e.getDate()} ${s.toLocaleDateString('ru-RU',{month:'long'})}`:`${formatDate(ymd(s))}–${formatDate(ymd(e))}`;}
+  else label=monthName(state.calendarDate);
+  $('calendarLabel').textContent=label;
+  ['day','week','month'].forEach(v=>$('view'+v[0].toUpperCase()+v.slice(1)).classList.toggle('active',state.calendarView===v));
+}
+
+function setCalendarView(v){state.calendarView=v;renderCalendarHeader();loadCalendar()}
+function moveCalendar(n){
+  if(state.calendarView==='day')state.calendarDate=addDays(state.calendarDate,n);
+  else if(state.calendarView==='week')state.calendarDate=addDays(state.calendarDate,n*7);
+  else state.calendarDate=new Date(state.calendarDate.getFullYear(),state.calendarDate.getMonth()+n,1);
   loadCalendar();
 }
 
-function changeCalendarDate(direction) {
-  const next = new Date(calendarDate);
-
-  if (calendarView === "day") {
-    next.setDate(next.getDate() + direction);
-
-  } else if (calendarView === "week") {
-    next.setDate(next.getDate() + direction * 7);
-
-  } else {
-    next.setMonth(next.getMonth() + direction);
+function renderCalendar(){
+  renderCalendarHeader();
+  const box=$('calendarContent');
+  if(state.calendarView==='day'){
+    const ds=ymd(state.calendarDate), list=state.meetings.filter(m=>meetingDate(m)===ds).sort((a,b)=>meetingTime(a).localeCompare(meetingTime(b)));
+    box.innerHTML=list.length?`<div class="agenda">${list.map(renderAgenda).join('')}</div>`:emptyHtml('Встреч нет','На выбранный день ничего не запланировано.');
+    return;
   }
-
-  calendarDate = next;
-  loadCalendar();
-}
-
-function goCalendarToday() {
-  calendarDate = new Date();
-  loadCalendar();
-}
-
-function loadCalendar() {
-  if (!document.getElementById("calendarContent")) return;
-
-  const requestNumber = ++calendarRequestNumber;
-  const range = getCalendarRange();
-
-  document.getElementById("calendarPeriod").textContent =
-    formatCalendarPeriod();
-
-  document.getElementById("calendarContent").innerHTML =
-    '<div class="loading">Загружаем встречи...</div>';
-
-  if (isLoadingCalendar) {
-    // Предыдущий запрос не отменяем, но его результат будет проигнорирован.
+  if(state.calendarView==='week'){
+    const d=new Date(state.calendarDate), day=(d.getDay()+6)%7, start=addDays(d,-day);
+    let html='<div class="agenda">';
+    for(let i=0;i<7;i++){const x=addDays(start,i), ds=ymd(x), list=state.meetings.filter(m=>meetingDate(m)===ds).sort((a,b)=>meetingTime(a).localeCompare(meetingTime(b)));html+=`<div><div style="font-size:14px;font-weight:850;margin:10px 2px">${escapeHtml(x.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}))}</div>${list.length?list.map(renderAgenda).join(''):'<div class="card empty" style="padding:16px">Нет встреч</div>'}</div>`}
+    box.innerHTML=html+'</div>'; return;
   }
-
-  isLoadingCalendar = true;
-
-  runServer(
-    "getCalendarMeetings",
-    [range.start, range.end],
-    result => {
-      if (requestNumber !== calendarRequestNumber) return;
-
-      isLoadingCalendar = false;
-
-      if (!result || !result.success) {
-        showCalendarError(
-          result?.message || "Не удалось загрузить встречи."
-        );
-        return;
-      }
-
-      calendarMeetings = Array.isArray(result.meetings)
-        ? result.meetings
-        : [];
-
-      renderCalendar();
-    },
-    error => {
-      if (requestNumber !== calendarRequestNumber) return;
-
-      isLoadingCalendar = false;
-
-      showCalendarError(
-        error?.message || "Ошибка соединения с сервером."
-      );
-    }
-  );
+  renderMonth(box);
 }
 
-function showCalendarError(message) {
-  const content = document.getElementById("calendarContent");
-
-  content.replaceChildren(
-    makeText(
-      "div",
-      "empty",
-      "Не удалось загрузить календарь: " + message
-    )
-  );
+function renderMonth(box){
+  const d=state.calendarDate, first=new Date(d.getFullYear(),d.getMonth(),1), days=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(), offset=(first.getDay()+6)%7;
+  const meetDays=new Set(state.meetings.map(meetingDate));
+  let html='<div class="month-grid">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<div class="weekday">${x}</div>`).join('');
+  for(let i=0;i<offset;i++)html+='<div></div>';
+  for(let n=1;n<=days;n++){const x=new Date(d.getFullYear(),d.getMonth(),n),ds=ymd(x),today=ds===todayYmd(),sel=ds===ymd(state.calendarDate);html+=`<button class="day ${today?'today ':''}${sel?'selected':''}" onclick="selectCalendarDay('${ds}')">${n}${meetDays.has(ds)?'<div class="dot"></div>':''}</button>`}
+  box.innerHTML=html+'</div>';
+}
+function selectCalendarDay(ds){state.calendarDate=new Date(ds+'T00:00:00');state.calendarView='day';loadCalendar()}
+function renderAgenda(m){
+  return `<button class="agenda-item" style="width:100%;text-align:left" onclick="openMeeting('${escapeHtml(meetingId(m))}')"><div class="agenda-time">${escapeHtml(meetingTime(m)||'—')}</div><div class="agenda-body"><div class="agenda-name">${escapeHtml(meetingName(m))}</div><div class="agenda-meta">${escapeHtml([m.specialty||'',meetingObject(m)||''].filter(Boolean).join(' · '))}</div></div></button>`;
 }
 
-
-function formatCandidateCount(n) {
-  const abs = Math.abs(Number(n) || 0);
-  const mod10 = abs % 10;
-  const mod100 = abs % 100;
-
-  if (mod10 === 1 && mod100 !== 11) return abs + " кандидат";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return abs + " кандидата";
-  }
-  return abs + " кандидатов";
+async function openMeeting(id){
+  const m=state.meetings.find(x=>meetingId(x)===id);
+  if(!m){showToast('Встреча не найдена','error');return}
+  const name=meetingName(m), date=meetingDate(m), time=meetingTime(m), object=meetingObject(m), candidate=candidateId(m);
+  $('meetingContent').innerHTML=`<div class="profile-block">
+    <div class="card profile-card"><div class="profile-label">Кандидат</div><div class="profile-value">${escapeHtml(name)}</div>${m.phone?`<div style="margin-top:10px"><a href="tel:${escapeHtml(m.phone)}">${escapeHtml(m.phone)}</a></div>`:''}</div>
+    <div class="card profile-card"><div class="profile-label">Дата и время</div><div class="profile-value">${escapeHtml(formatDate(date))} ${escapeHtml(time)}</div>${object?`<div class="minor">${escapeHtml(object)}</div>`:''}</div>
+    <button class="btn btn-light btn-full" onclick="openCandidateProfile('${escapeHtml(candidate)}')">Открыть профиль</button>
+    <button class="btn btn-dark btn-full" onclick="addCandidateNoteMobile('${escapeHtml(candidate)}')">Оставить заметку</button>
+  </div>`;
+  openModal('meetingModal');
 }
 
-function getCalendarMeetingClass(meeting) {
-  if (meeting.status === "Отменена") return "cancelled";
-  if (meeting.status === "Перенесена") return "rescheduled";
-  return "planned";
+async function openCandidateProfile(id){
+  if(!id){showToast('Не указан кандидат','error');return}
+  state.candidateId=id;
+  $('profileName').textContent='Кандидат';
+  $('profileContent').innerHTML='<div class="loading"><div class="spinner"></div>Загружаем профиль</div>';
+  openModal('profileModal');
+  try{
+    const r=await serverCall('getCandidateProfile',id);
+    if(!r || r.success===false)throw new Error(r?.error||'Профиль не найден');
+    renderProfile(r);
+  }catch(e){$('profileContent').innerHTML=emptyHtml('Не удалось загрузить профиль',e.message)}
 }
 
-function getCalendarMeetingCandidate(meeting) {
-  const existing = allCandidates.find(candidate =>
-    String(candidate.candidateId || "") ===
-    String(meeting.candidateId || "")
-  );
-
-  return {
-    ...(existing || {}),
-    meetingId:meeting.meetingId,
-    candidateId:meeting.candidateId,
-    name:meeting.name || existing?.name || "Без ФИО",
-    phone:meeting.phone || existing?.phone || "",
-    specialty:meeting.specialty || existing?.specialty || "",
-    meeting:meeting.meeting,
-    status:existing?.status || "Записан",
-    object:meeting.object || existing?.object || "Не указан",
-    comment:meeting.comment || existing?.comment || "",
-    source:meeting.source || existing?.source || ""
-  };
+function statusOptions(current){
+  const arr=['Новый','Приглашён','Пришёл','Не пришёл','Собеседование','Стажировка','Работает','Отказ','Отменена'];
+  return arr.map(x=>`<option value="${escapeHtml(x)}" ${x===current?'selected':''}>${escapeHtml(x)}</option>`).join('');
 }
 
-function createCalendarEventButton(meeting) {
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className =
-    "calendar-event " + getCalendarMeetingClass(meeting);
-
-  button.textContent =
-    meeting.time + " · " + (meeting.name || "Без ФИО");
-
-  button.title =
-    (meeting.name || "Без ФИО") + " — " +
-    (meeting.specialty || "Специальность не указана") +
-    " — " + meeting.status;
-
-  button.addEventListener("click", event => {
-    event.stopPropagation();
-    openCalendarMeeting(meeting);
-  });
-
-  return button;
+function renderProfile(r){
+  const c=r.candidate||r.data||r, id=candidateId(c), meetings=Array.isArray(r.meetings)?r.meetings:[], history=Array.isArray(r.history)?r.history:[];
+  $('profileName').textContent=c.name||'Кандидат';
+  $('profileContent').innerHTML=`<div class="profile-block">
+    <div class="card profile-card">
+      ${c.phone?`<div><div class="profile-label">Телефон</div><div class="profile-value"><a href="tel:${escapeHtml(c.phone)}">${escapeHtml(c.phone)}</a></div></div>`:''}
+      ${c.specialty?`<div style="margin-top:14px"><div class="profile-label">Специальность</div><div class="profile-value">${escapeHtml(c.specialty)}</div></div>`:''}
+      ${c.object?`<div style="margin-top:14px"><div class="profile-label">Объект</div><div class="profile-value">${escapeHtml(c.object)}</div></div>`:''}
+      <div style="margin-top:14px"><div class="profile-label">Статус</div><select class="field" style="min-height:52px;border:1px solid var(--line);border-radius:16px;padding:0 12px" onchange="updateStatus('${escapeHtml(id)}',this.value)">${statusOptions(c.status||'Новый')}</select></div>
+      ${c.comment?`<div style="margin-top:14px"><div class="profile-label">Комментарий</div><div class="profile-value" style="line-height:1.5">${escapeHtml(c.comment)}</div></div>`:''}
+    </div>
+    ${meetings.length?`<div><h3 style="margin:0 0 10px;font-size:19px">Встречи</h3><div class="list">${meetings.map(renderProfileMeeting).join('')}</div></div>`:''}
+    <div><h3 style="margin:0 0 10px;font-size:19px">История</h3><div class="card">${history.length?history.map(h=>`<div class="history-item"><div class="history-action">${escapeHtml(h.action||h.event||h.status||'Изменение')}</div><div class="history-text">${escapeHtml(h.comment||h.note||h.description||'')}</div>${(h.date||h.createdAt||h.timestamp)?`<div class="history-date">${escapeHtml(h.date||h.createdAt||h.timestamp)}</div>`:''}</div>`).join(''): '<div class="empty">История пока пуста.</div>'}</div></div>
+    <button class="btn btn-light btn-full" onclick="addCandidateNoteMobile('${escapeHtml(id)}')">Добавить заметку</button>
+  </div>`;
 }
 
-function renderCalendar() {
-  const content = document.getElementById("calendarContent");
-
-  document.getElementById("calendarPeriod").textContent =
-    formatCalendarPeriod();
-
-  content.replaceChildren();
-
-  if (calendarView === "month") {
-    renderCalendarMonth(content);
-  } else if (calendarView === "week") {
-    renderCalendarWeek(content);
-  } else {
-    renderCalendarDay(content);
-  }
-
-  const count = makeText(
-    "div",
-    "calendar-count",
-    "Встреч в периоде: " + calendarMeetings.length
-  );
-
-  content.appendChild(count);
+function renderProfileMeeting(m){
+  return `<div class="meeting-card"><div class="meeting-date">${escapeHtml(formatDate(meetingDate(m)))}</div><div class="meeting-time">${escapeHtml(meetingTime(m)||'—')}</div><div class="meeting-name">${escapeHtml(meetingName(m))}</div><div class="meeting-meta">${escapeHtml(meetingObject(m))}</div></div>`;
 }
 
-function renderCalendarMonth(container) {
-  const grid = makeText("div", "calendar-month", "");
-
-  CALENDAR_WEEKDAYS.forEach(day => {
-    grid.appendChild(
-      makeText("div", "calendar-weekday", day)
-    );
-  });
-
-  const firstDay = new Date(
-    calendarDate.getFullYear(),
-    calendarDate.getMonth(),
-    1
-  );
-
-  const start = getCalendarMonday(firstDay);
-  const today = dateKey(new Date());
-  const selected = dateKey(calendarDate);
-
-  const grouped = {};
-
-  calendarMeetings.forEach(meeting => {
-    if (!grouped[meeting.date]) grouped[meeting.date] = [];
-    grouped[meeting.date].push(meeting);
-  });
-
-  for (let i = 0; i < 42; i++) {
-    const date = addCalendarDays(start, i);
-    const key = dateKey(date);
-
-    const classes = ["calendar-day"];
-
-    if (date.getMonth() !== calendarDate.getMonth()) {
-      classes.push("other-month");
-    }
-
-    if (key === today) classes.push("today");
-    if (key === selected) classes.push("selected");
-
-    const cell = makeText("div", classes.join(" "), "");
-
-    const meetings = (grouped[key] || []).slice().sort((a, b) =>
-      a.time.localeCompare(b.time)
-    );
-
-    const numberRow = makeText("div", "calendar-day-number", "");
-    numberRow.appendChild(document.createTextNode(String(date.getDate())));
-
-    if (meetings.length > 0) {
-      const badge = makeText("span", "calendar-day-badge", String(meetings.length));
-
-      const hasRescheduled = meetings.some(m => m.status === "Перенесена");
-      const hasCancelled = meetings.some(m => m.status === "Отменена");
-
-      if (hasCancelled) badge.classList.add("has-cancelled");
-      else if (hasRescheduled) badge.classList.add("has-rescheduled");
-
-      numberRow.appendChild(badge);
-    }
-
-    cell.appendChild(numberRow);
-
-    if (meetings.length > 0) {
-      const indicators = makeText("div", "calendar-day-indicators", "");
-
-      // Show up to 5 status dots for quick visual density
-      meetings.slice(0, 5).forEach(meeting => {
-        const cls = "calendar-day-dot " + getCalendarMeetingClass(meeting);
-        indicators.appendChild(makeText("span", cls.trim(), ""));
-      });
-
-      if (meetings.length > 5) {
-        indicators.appendChild(
-          makeText("span", "calendar-more", "+" + (meetings.length - 5))
-        );
-      }
-
-      cell.appendChild(indicators);
-
-      // Compact one-line summary of first meeting(s)
-      const first = meetings[0];
-      let summaryText = first.time + " · " + (first.name || "Без ФИО");
-      if (meetings.length === 2) {
-        summaryText += " и ещё 1";
-      } else if (meetings.length > 2) {
-        summaryText += " и ещё " + (meetings.length - 1);
-      }
-
-      cell.appendChild(makeText("div", "calendar-day-summary", summaryText));
-    }
-
-    cell.addEventListener("click", () => {
-      calendarDate = date;
-      setCalendarView("day");
-    });
-
-    grid.appendChild(cell);
-  }
-
-  container.appendChild(grid);
+async function updateStatus(id,status){
+  try{
+    const r=await serverCall('updateCandidateStatus',id,status);
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось изменить статус');
+    showToast('Статус обновлён','success'); await openCandidateProfile(id); refreshAll();
+  }catch(e){showToast(e.message||'Ошибка','error')}
 }
 
-function renderCalendarWeek(container) {
-  const wrapper = makeText("div", "calendar-week-wrapper", "");
-  const grid = makeText("div", "calendar-week", "");
-
-  const monday = getCalendarMonday(calendarDate);
-  const today = dateKey(new Date());
-  const selected = dateKey(calendarDate);
-
-  for (let i = 0; i < 7; i++) {
-    const date = addCalendarDays(monday, i);
-    const key = dateKey(date);
-
-    const column = makeText("div", "calendar-week-column", "");
-
-    if (key === selected) column.classList.add("selected");
-
-    const dateHeading = makeText("div", "calendar-week-date", "");
-
-    if (key === today) dateHeading.classList.add("today");
-
-    dateHeading.appendChild(
-      makeText("strong", "", date.getDate())
-    );
-
-    dateHeading.appendChild(
-      makeText(
-        "span",
-        "",
-        CALENDAR_WEEKDAYS[i] + " · " +
-        CALENDAR_MONTHS[date.getMonth()].slice(0, 3)
-      )
-    );
-
-    dateHeading.addEventListener("click", () => {
-      calendarDate = date;
-      setCalendarView("day");
-    });
-
-    column.appendChild(dateHeading);
-
-    const meetings = calendarMeetings
-      .filter(meeting => meeting.date === key)
-      .sort((a, b) => a.time.localeCompare(b.time));
-
-    if (!meetings.length) {
-      column.appendChild(
-        makeText("div", "calendar-empty-day", "Нет встреч")
-      );
-    } else {
-      // Group by time so multiple candidates at same slot stack cleanly
-      const byTime = {};
-      const times = [];
-
-      meetings.forEach(meeting => {
-        if (!byTime[meeting.time]) {
-          byTime[meeting.time] = [];
-          times.push(meeting.time);
-        }
-        byTime[meeting.time].push(meeting);
-      });
-
-      times.forEach(time => {
-        const list = byTime[time];
-
-        if (list.length === 1) {
-          column.appendChild(createCalendarEventButton(list[0]));
-        } else {
-          const groupLabel = makeText(
-            "div",
-            "calendar-more",
-            time + " · " + formatCandidateCount(list.length)
-          );
-          groupLabel.style.marginBottom = "3px";
-          groupLabel.style.color = "var(--gold)";
-          groupLabel.style.fontWeight = "700";
-          column.appendChild(groupLabel);
-
-          list.forEach(meeting => {
-            const btn = createCalendarEventButton(meeting);
-            // Avoid repeating time in stacked list
-            btn.textContent = meeting.name || "Без ФИО";
-            column.appendChild(btn);
-          });
-        }
-      });
-    }
-
-    grid.appendChild(column);
-  }
-
-  wrapper.appendChild(grid);
-  container.appendChild(wrapper);
+async function addCandidateNoteMobile(id){
+  const note=prompt('Заметка для кандидата:');
+  if(!note?.trim())return;
+  try{
+    const r=await serverCall('addCandidateNote',id,note.trim());
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось добавить заметку');
+    showToast('Заметка добавлена','success'); await openCandidateProfile(id);
+  }catch(e){showToast(e.message||'Ошибка','error')}
 }
 
-function renderCalendarDay(container) {
-  const layout = makeText("div", "calendar-day-layout", "");
+async function rescheduleCandidateMeeting(id){
+  openRescheduleSheet(id);
+}
 
-  const heading = makeText(
-    "div",
-    "calendar-day-heading",
-    new Intl.DateTimeFormat("ru-RU", {
-      weekday:"long",
-      day:"numeric",
-      month:"long",
-      year:"numeric"
-    }).format(calendarDate)
-  );
+async function cancelCandidateMeeting(id){
+  await cancelMeetingMobile(id);
+}
 
-  layout.appendChild(heading);
+function openRescheduleSheet(id){
+  const m=state.meetings.find(x=>meetingId(x)===id) ||
+          state.candidates.map(c=>({
+            meetingId:meetingId(c),
+            candidateId:candidateId(c),
+            name:c.name,
+            phone:c.phone,
+            specialty:c.specialty,
+            object:c.object,
+            date:c.meeting
+          })).find(x=>meetingId(x)===id);
 
-  const selectedKey = dateKey(calendarDate);
+  state.rescheduleMeetingId=id;
 
-  const meetings = calendarMeetings
-    .filter(meeting => meeting.date === selectedKey)
-    .sort((a, b) => a.time.localeCompare(b.time));
+  const currentDate=m ? meetingDate(m) : todayYmd();
+  const currentTime=m ? meetingTime(m) : '10:00';
 
-  if (!meetings.length) {
-    layout.appendChild(
-      makeText(
-        "div",
-        "calendar-empty-day",
-        "На выбранную дату встреч нет."
-      )
-    );
+  $('rescheduleDate').value=currentDate || todayYmd();
+  $('rescheduleTime').value=currentTime || '10:00';
+  $('rescheduleReason').value='';
+  $('rescheduleCandidateName').textContent=m ? meetingName(m) : 'Выберите новую дату и время';
 
-    container.appendChild(layout);
+  openModal('rescheduleModal');
+}
+
+function setRescheduleDay(offset){
+  const d=new Date();
+  d.setDate(d.getDate()+offset);
+  $('rescheduleDate').value=ymd(d);
+}
+
+async function submitReschedule(e){
+  e.preventDefault();
+  const id=state.rescheduleMeetingId;
+  const date=$('rescheduleDate').value;
+  const time=$('rescheduleTime').value;
+  const reason=$('rescheduleReason').value.trim();
+  const submit=$('rescheduleSubmit');
+
+  if(!id || !date || !time){
+    showToast('Укажите дату и время','error');
     return;
   }
 
-  const grouped = {};
-  const times = [];
+  submit.disabled=true;
+  submit.textContent='Переносим...';
 
-  meetings.forEach(meeting => {
-    if (!grouped[meeting.time]) {
-      grouped[meeting.time] = [];
-      times.push(meeting.time);
+  try{
+    const r=await serverCall('rescheduleMeeting',id,date,time,reason);
+    if(!r || r.success===false){
+      throw new Error(r?.error || r?.message || 'Не удалось перенести встречу');
     }
-    grouped[meeting.time].push(meeting);
-  });
 
-  times.sort((a, b) => a.localeCompare(b));
-
-  times.forEach(time => {
-    const list = grouped[time];
-    const group = makeText("div", "calendar-time-group", "");
-
-    const header = makeText("div", "calendar-time-group-header", "");
-    header.appendChild(document.createTextNode(time));
-
-    header.appendChild(makeText("span", "", formatCandidateCount(list.length)));
-
-    group.appendChild(header);
-
-    const body = makeText("div", "calendar-time-group-body", "");
-
-    list.forEach(meeting => {
-      // In day view show name + specialty without repeating time
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "calendar-event " + getCalendarMeetingClass(meeting);
-
-      const name = meeting.name || "Без ФИО";
-      const specialty = meeting.specialty || "Специальность не указана";
-      button.textContent = name + " · " + specialty;
-
-      button.title =
-        name + " — " + specialty + " — " + (meeting.status || "");
-
-      button.addEventListener("click", event => {
-        event.stopPropagation();
-        openCalendarMeeting(meeting);
-      });
-
-      body.appendChild(button);
-    });
-
-    group.appendChild(body);
-    layout.appendChild(group);
-  });
-
-  container.appendChild(layout);
+    closeModal('rescheduleModal');
+    closeModal('meetingModal');
+    showToast('Встреча перенесена','success');
+    await refreshAll();
+  }catch(e){
+    console.error('rescheduleMeeting:',e);
+    showToast(e.message||'Не удалось перенести встречу','error');
+  }finally{
+    submit.disabled=false;
+    submit.textContent='Перенести встречу';
+  }
 }
 
-function openCalendarMeeting(meeting) {
-  const candidate = getCalendarMeetingCandidate(meeting);
-
-  const old = document.getElementById("calendarMeetingModal");
-  if (old) old.remove();
-
-  const overlay = document.createElement("div");
-  overlay.id = "calendarMeetingModal";
-
-  Object.assign(overlay.style, {
-    position:"fixed",
-    inset:"0",
-    zIndex:"100000",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    padding:"18px",
-    background:"rgba(5,10,20,.82)",
-    backdropFilter:"blur(5px)"
-  });
-
-  const modal = document.createElement("div");
-
-  Object.assign(modal.style, {
-    width:"100%",
-    maxWidth:"430px",
-    maxHeight:"90vh",
-    overflowY:"auto",
-    padding:"24px",
-    borderRadius:"16px",
-    border:"1px solid #46536a",
-    background:"#1a2230",
-    color:"#edf0f5",
-    boxShadow:"0 25px 80px rgba(0,0,0,.5)"
-  });
-
-  const header = makeText("div", "", "");
-  Object.assign(header.style, {
-    display:"flex",
-    justifyContent:"space-between",
-    alignItems:"center",
-    gap:"12px",
-    marginBottom:"20px"
-  });
-
-  header.appendChild(
-    makeText("div", "", "Информация о встрече")
-  );
-
-  const close = makeText("button", "", "×");
-  close.type = "button";
-
-  Object.assign(close.style, {
-    border:"0",
-    background:"transparent",
-    color:"#8995a8",
-    fontSize:"26px",
-    cursor:"pointer"
-  });
-
-  header.appendChild(close);
-  modal.appendChild(header);
-
-  const fields = [
-    ["Кандидат", candidate.name],
-    ["Телефон", candidate.phone || "Не указан"],
-    ["Специальность", candidate.specialty || "Не указана"],
-    ["Дата", meeting.meeting],
-    ["Статус встречи", meeting.status || "Не указан"],
-    ["Статус кандидата", candidate.status || "Не указан"],
-    ["Объект", candidate.object || "Не указан"],
-    ["Источник", candidate.source || "Не указан"],
-    ["Комментарий", candidate.comment || "Нет комментария"]
-  ];
-
-  fields.forEach(([label, value]) => {
-    const item = makeText("div", "", "");
-
-    Object.assign(item.style, {
-      padding:"10px 0",
-      borderBottom:"1px solid #2b3545"
-    });
-
-    item.appendChild(
-      makeText("div", "", label)
-    );
-
-    const valueElement = makeText("div", "", value);
-
-    Object.assign(valueElement.style, {
-      color:"#cbd2dd",
-      fontSize:"13px",
-      marginTop:"5px",
-      overflowWrap:"anywhere"
-    });
-
-    item.appendChild(valueElement);
-    modal.appendChild(item);
-  });
-
-  const actions = makeText("div", "", "");
-
-  Object.assign(actions.style, {
-    display:"flex",
-    flexWrap:"wrap",
-    gap:"8px",
-    marginTop:"20px"
-  });
-
-  if (candidate.phone) {
-    const call = makeText("a", "quick-btn call", "☎ Позвонить");
-    call.href = "tel:" + normalizePhone(candidate.phone);
-    actions.appendChild(call);
-
-    const copy = makeText("button", "quick-btn copy", "▣ Копировать номер");
-    copy.type = "button";
-    copy.addEventListener("click", async () => {
-      if (await copyPhone(candidate.phone)) {
-        copy.textContent = "✓ Скопировано";
-      }
-    });
-
-    actions.appendChild(copy);
-  }
-
-  if (meeting.status !== "Отменена") {
-    const reschedule = makeText(
-      "button",
-      "secondary-btn",
-      "Перенести"
-    );
-
-    reschedule.type = "button";
-
-    reschedule.addEventListener("click", () => {
-      overlay.remove();
-      openRescheduleDialog(candidate);
-    });
-
-    actions.appendChild(reschedule);
-
-    const cancel = makeText(
-      "button",
-      "secondary-btn",
-      "Отменить встречу"
-    );
-
-    cancel.type = "button";
-    cancel.style.color = "#FF8585";
-
-    cancel.addEventListener("click", () => {
-      overlay.remove();
-      openCancelDialog(candidate);
-    });
-
-    actions.appendChild(cancel);
-  }
-
-  modal.appendChild(actions);
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  function closeModal() {
-    overlay.remove();
-    document.removeEventListener("keydown", escapeHandler);
-  }
-
-  const escapeHandler = event => {
-    if (event.key === "Escape") closeModal();
-  };
-
-  close.addEventListener("click", closeModal);
-
-  overlay.addEventListener("click", event => {
-    if (event.target === overlay) closeModal();
-  });
-
-  document.addEventListener("keydown", escapeHandler);
+async function rescheduleMeetingMobile(id){
+  openRescheduleSheet(id);
 }
 
-function showPage(page) {
-  if (!pageTitles[page]) return;
-
-  document.querySelectorAll(".page").forEach(element => {
-    element.classList.remove("active");
-  });
-
-  document.getElementById("page-" + page).classList.add("active");
-
-  document.querySelectorAll(".nav-btn").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === page);
-  });
-
-  document.getElementById("pageTitle").textContent = pageTitles[page];
-
-  window.scrollTo({ top:0, behavior:"smooth" });
-
-  if (page === "candidates") renderCandidates();
-  if (page === "dashboard") renderTodayCandidates();
-  if (page === "calendar") loadCalendar();
-  if (page === "analytics") loadRecruitmentAnalytics();
+async function cancelMeetingMobile(id){
+  if(!confirm('Отменить эту встречу?'))return;
+  const reason=prompt('Причина отмены:','');
+  try{
+    const r=await serverCall('cancelMeeting',id,reason||'');
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось отменить встречу');
+    closeModal('meetingModal'); showToast('Встреча отменена','success'); await refreshAll();
+  }catch(e){showToast(e.message||'Ошибка','error')}
 }
 
-document.querySelectorAll(".nav-btn").forEach(button => {
-  button.addEventListener("click", () => showPage(button.dataset.page));
+let candidateStep=1;
+let candidateSaving=false;
+function candidateSteps(){return [...document.querySelectorAll('#candidateForm .candidate-step')]}
+function renderCandidateStep(){
+  const steps=candidateSteps();
+  if(!steps.length)return;
+  steps.forEach((el,i)=>el.classList.toggle('active',i===candidateStep-1));
+  const total=steps.length;
+  const label=$('candidateStepLabel'); if(label)label.textContent=`${candidateStep} из ${total}`;
+  const bar=$('candidateProgressBar'); if(bar)bar.style.width=(candidateStep/total*100)+'%';
+  const back=$('candidateBack'), next=$('candidateNext');
+  if(back)back.style.display=candidateStep>1?'inline-flex':'none';
+  if(next){next.textContent=candidateStep===total?'Добавить кандидата':'Далее';next.type='button';}
+  const active=steps[candidateStep-1];
+  const focus=active?.querySelector('input,select,textarea');
+  setTimeout(()=>focus?.focus({preventScroll:true}),80);
+}
+function validateCandidateStep(){
+  const step=document.querySelector(`#candidateForm .candidate-step[data-step="${candidateStep}"]`);
+  if(!step)return true;
+  const fields=[...step.querySelectorAll('input[required],select[required],textarea[required]')];
+  for(const field of fields){if(!field.checkValidity()){field.reportValidity();field.focus();return false;}}
+  return true;
+}
+function candidateNext(){
+  const total=candidateSteps().length;
+  if(!validateCandidateStep())return;
+  if(candidateStep<total){candidateStep++;renderCandidateStep();return;}
+  const form=$('candidateForm'); if(form)form.requestSubmit();
+}
+function candidatePrev(){if(candidateStep>1){candidateStep--;renderCandidateStep();}}
+function setCandidateTime(t){const el=$('newTime');if(el){el.value=t;el.focus();}}
+function openAddCandidate(){
+  const form=$('candidateForm');
+  if(form)form.reset();
+  $('newDate').value=todayYmd();$('newTime').value='10:00';
+  const select=$('newObject');if(select)select.innerHTML='<option value="">Выберите объект</option>';
+  candidateStep=1;openModal('candidateModal');renderCandidateStep();
+  // Объекты грузим только после открытия и не блокируем форму.
+  loadObjectsIntoSelect();
+}
+async function loadObjectsIntoSelect(){
+  const s=$('newObject');if(!s)return;
+  try{
+    const r=await Promise.race([serverCall('getObjects'),new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),5000))]);
+    state.objects=Array.isArray(r?.objects)?r.objects:(Array.isArray(r)?r:[]);
+    s.innerHTML='<option value="">Выберите объект</option>';
+    state.objects.forEach(o=>{const v=typeof o==='string'?o:(o.name||o.objectName||o.title||'');if(v){const opt=document.createElement('option');opt.value=v;opt.textContent=v;s.appendChild(opt);}});
+  }catch(e){s.innerHTML='<option value="">Объект недоступен — можно продолжить</option>';}
+}
+async function createCandidateFromForm(e){
+  e.preventDefault();if(candidateSaving)return;
+  if(!validateCandidateStep())return;
+  const name=$('newName').value.trim(),phone=$('newPhone').value.trim(),specialty=$('newSpecialty').value.trim(),date=$('newDate').value,time=$('newTime').value;
+  if(!name||!phone||!specialty||!date||!time){showToast('Заполни обязательные поля','error');return;}
+  candidateSaving=true;const submit=$('candidateNext');if(submit){submit.disabled=true;submit.textContent='Сохраняем...'}
+  const data={name,phone,specialty,object:$('newObject').value,date,time,comment:$('newComment').value.trim()};
+  try{const r=await serverCall('createCandidate',data);if(!r||r.success===false)throw new Error(r?.error||'Не удалось создать кандидата');closeModal('candidateModal');showToast('Кандидат сохранён, встреча создана','success');await refreshAll();}
+  catch(e){showToast(e.message||'Ошибка при создании кандидата','error');}
+  finally{candidateSaving=false;if(submit){submit.disabled=false;submit.textContent='Добавить кандидата';}}
+}
+
+async function loadObjects(){
+  setLoading('objectsList','Загружаем объекты');
+  try{
+    const r=await serverCall('getObjects');state.objects=Array.isArray(r?.objects)?r.objects:(Array.isArray(r)?r:[]);
+    $('objectsList').innerHTML=state.objects.length?state.objects.map(o=>{const v=typeof o==='string'?o:(o.name||o.objectName||o.title||'');return `<div class="object-card">${escapeHtml(v)}<span style="color:var(--muted)">›</span></div>`}).join(''):emptyHtml('Объектов нет','Добавьте первый объект.');
+  }catch(e){$('objectsList').innerHTML=emptyHtml('Ошибка загрузки',e.message)}
+}
+function openAddObject(){$('objectName').value='';openModal('objectModal')}
+async function createObject(e){
+  e.preventDefault();const name=$('objectName').value.trim();if(!name)return;
+  try{const r=await serverCall('addObject',name);if(!r || r.success===false)throw new Error(r?.error||'Не удалось добавить объект');closeModal('objectModal');showToast('Объект добавлен','success');loadObjects()}catch(err){showToast(err.message||'Ошибка','error')}
+}
+
+async function loadAnalytics(){
+  $('analyticsContent').innerHTML='<div class="loading"><div class="spinner"></div>Загружаем аналитику</div>';
+  try{
+    const r=await serverCall('getRecruitmentAnalytics',{period:'month'});
+    if(!r || r.success===false)throw new Error(r?.error||'Не удалось получить аналитику');
+    const data=r.analytics||r.data||r;
+    const entries=Object.entries(data).filter(([k,v])=>typeof v==='number' || typeof v==='string');
+    $('analyticsContent').innerHTML=entries.length?entries.slice(0,12).map(([k,v])=>`<div class="analytics-card"><div class="analytics-label">${escapeHtml(prettyKey(k))}</div><div class="analytics-number">${escapeHtml(v)}</div></div>`).join(''):emptyHtml('Нет данных','Аналитика пока не вернула показатели.');
+  }catch(e){$('analyticsContent').innerHTML=emptyHtml('Ошибка загрузки',e.message)}
+}
+function prettyKey(k){return String(k).replace(/([A-Z])/g,' $1').replace(/^./,x=>x.toUpperCase()).replace(/_/g,' ')}
+
+async function refreshAll(){
+  $('todayDate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+  await Promise.allSettled([loadCandidates(),loadTodayMeetings()]);
+  if(state.screen==='calendar')loadCalendar(true);
+}
+
+function emptyHtml(title,text){return `<div class="card empty"><strong>${escapeHtml(title)}</strong>${escapeHtml(text||'')}</div>`}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  $('fab').style.display='none';
+  $('todayDate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+  refreshAll();
 });
-
-document.getElementById("currentDate").textContent =
-  new Intl.DateTimeFormat("ru-RU", {
-    day:"numeric",
-    month:"long",
-    year:"numeric"
-  }).format(new Date());
-
-const timeSelect = document.getElementById("time");
-
-for (let hour = 8; hour <= 19; hour++) {
-  for (const minute of [0, 30]) {
-    if (hour === 19 && minute === 30) continue;
-
-    const value =
-      String(hour).padStart(2, "0") + ":" +
-      String(minute).padStart(2, "0");
-
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
-    if (value === "10:00") option.selected = true;
-    timeSelect.appendChild(option);
-  }
-}
-
-const dateInput = document.getElementById("date");
-dateInput.value = getTomorrow();
-dateInput.min = getTomorrow();
-
-function loadObjects(selectedObject) {
-  const select = document.getElementById("object");
-  select.disabled = true;
-  select.innerHTML = '<option value="">Загрузка объектов...</option>';
-
-  runServer(
-    "getObjects",
-    [],
-    objects => {
-      select.replaceChildren();
-
-      const placeholder = document.createElement("option");
-      placeholder.value = "";
-      placeholder.textContent = "Выберите объект";
-      select.appendChild(placeholder);
-
-      (Array.isArray(objects) ? objects : []).forEach(name => {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-      });
-
-      if (selectedObject && (objects || []).includes(selectedObject)) {
-        select.value = selectedObject;
-      }
-
-      select.disabled = false;
-    },
-    error => {
-      select.innerHTML = '<option value="">Ошибка загрузки объектов</option>';
-      select.disabled = false;
-      console.error("Ошибка загрузки объектов:", error);
-    }
-  );
-}
-
-function showNewObjectInput() {
-  const box = document.getElementById("newObjectBox");
-  const input = document.getElementById("newObjectName");
-
-  box.style.display = box.style.display === "none" ? "block" : "none";
-
-  if (box.style.display === "block") input.focus();
-}
-
-function saveNewObject() {
-  const input = document.getElementById("newObjectName");
-  const button = document.querySelector("#newObjectBox button");
-  const name = input.value.trim();
-
-  if (!name) {
-    notifyWarning("Введите название объекта.", "Объект");
-    input.focus();
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = "Сохраняем...";
-
-  runServer(
-    "addObject",
-    [name],
-    result => {
-      button.disabled = false;
-      button.textContent = "Сохранить объект";
-
-      if (!result || !result.success) {
-        notifyError(result?.message || "Не удалось сохранить объект.", "Объект");
-        return;
-      }
-
-      loadObjects(name);
-      input.value = "";
-      document.getElementById("newObjectBox").style.display = "none";
-      notifySuccess("Объект сохранён в списке.", "Объект");
-    },
-    error => {
-      button.disabled = false;
-      button.textContent = "Сохранить объект";
-      notifyError(error?.message || String(error), "Ошибка");
-    }
-  );
-}
-
-function applyStatusColor(select, status) {
-  select.classList.remove(
-    "status-working",
-    "status-trial",
-    "status-arrived",
-    "status-rejected",
-    "status-new"
-  );
-
-  if (status === "Работает") {
-    select.classList.add("status-working");
-  } else if (status === "На испытательном сроке") {
-    select.classList.add("status-trial");
-  } else if (status === "Приехал на объект" || status === "Записан") {
-    select.classList.add("status-arrived");
-  } else if (
-    status === "Отказ" ||
-    status === "Не приехал" ||
-    status === "Не прошёл испытательный срок"
-  ) {
-    select.classList.add("status-rejected");
-  } else {
-    select.classList.add("status-new");
-  }
-}
-
-function makeStatusSelect(candidate) {
-  const select = document.createElement("select");
-  select.className = "status-select";
-
-  if (candidate.status && !STATUSES.includes(candidate.status)) {
-    const legacyOption = document.createElement("option");
-    legacyOption.value = candidate.status;
-    legacyOption.textContent = "Старый статус: " + candidate.status;
-    legacyOption.selected = true;
-    select.appendChild(legacyOption);
-  }
-
-  STATUSES.forEach(status => {
-    const option = document.createElement("option");
-    option.value = status;
-    option.textContent = status;
-    option.selected = candidate.status === status;
-    select.appendChild(option);
-  });
-
-  applyStatusColor(select, candidate.status);
-
-  select.addEventListener("change", () => {
-    applyStatusColor(select, select.value);
-    updateStatus(candidate.row, select.value, select);
-  });
-
-  return select;
-}
-
-function updateStats(stats) {
-  document.getElementById("statTotal").textContent = stats.total ?? 0;
-  document.getElementById("statNew").textContent = stats.newCount ?? 0;
-  document.getElementById("statToday").textContent = stats.today ?? 0;
-  document.getElementById("statStarted").textContent = stats.started ?? 0;
-}
-
-function hasMeetingId(candidate) {
-  return candidate.meetingId !== undefined &&
-    candidate.meetingId !== null &&
-    String(candidate.meetingId).trim() !== "";
-}
-
-function normalizePhone(phone) {
-  return String(phone || "").replace(/[^\d+]/g, "");
-}
-
-function createPhoneLink(phone) {
-  const link = document.createElement("a");
-  const normalized = normalizePhone(phone);
-
-  link.className = "phone-link";
-  link.textContent = phone || "Телефон не указан";
-
-  if (normalized) {
-    link.href = "tel:" + normalized;
-  } else {
-    link.removeAttribute("href");
-  }
-
-  return link;
-}
-
-async function copyPhone(phone) {
-  const value = String(phone || "").trim();
-
-  if (!value) {
-    notifyWarning("Номер телефона отсутствует.", "Телефон");
-    return false;
-  }
-
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(value);
-    } else {
-      const textarea = document.createElement("textarea");
-      textarea.value = value;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-
-      const copied = document.execCommand("copy");
-      textarea.remove();
-
-      if (!copied) throw new Error("Не удалось скопировать номер");
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Ошибка копирования:", error);
-    notifyWarning("Не удалось скопировать. Номер: " + value, "Телефон");
-    return false;
-  }
-}
-
-function createQuickActions(candidate) {
-  const actions = makeText("div", "quick-actions", "");
-
-  const phone = String(candidate.phone || "").trim();
-
-  const call = document.createElement("a");
-  call.className = "quick-btn call";
-  call.textContent = "☎ Позвонить";
-
-  if (phone) {
-    call.href = "tel:" + normalizePhone(phone);
-  } else {
-    call.href = "#";
-    call.addEventListener("click", event => {
-      event.preventDefault();
-      notifyWarning("У кандидата не указан номер телефона.", "Телефон");
-    });
-  }
-
-  const maxButton = document.createElement("button");
-  maxButton.type = "button";
-  maxButton.className = "quick-btn max";
-  maxButton.textContent = "✉ MAX · скопировать номер ";
-
-  maxButton.addEventListener("click", async () => {
-    if (!phone) {
-      notifyWarning("У кандидата не указан номер телефона.", "Телефон");
-      return;
-    }
-
-    // Открываем MAX синхронно в обработчике клика,
-    // чтобы браузер не заблокировал новую вкладку из-за await.
-    window.open("https://web.max.ru/", "_blank", "noopener,noreferrer");
-
-    // Копируем номер в буфер без лишнего успешного уведомления.
-    await copyPhone(phone);
-  });
-
-  const copyButton = document.createElement("button");
-  copyButton.type = "button";
-  copyButton.className = "quick-btn copy";
-  copyButton.textContent = "▣ Копировать";
-
-  copyButton.addEventListener("click", async () => {
-    const copied = await copyPhone(phone);
-
-    if (copied) {
-      const oldText = copyButton.textContent;
-      copyButton.textContent = "✓ Скопировано";
-
-      setTimeout(() => {
-        copyButton.textContent = oldText;
-      }, 1500);
-    }
-  });
-
-  actions.appendChild(call);
-  actions.appendChild(maxButton);
-  actions.appendChild(copyButton);
-
-  return actions;
-}
-
-function createRescheduleButton(candidate, label) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "secondary-btn";
-  button.textContent = label || "Перенести";
-
-  button.addEventListener("click", () => {
-    openRescheduleDialog(candidate);
-  });
-
-  if (!hasMeetingId(candidate)) {
-    button.title = "У записи отсутствует идентификатор встречи";
-  }
-
-  return button;
-}
-
-function createCancelButton(candidate, label) {
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className = "secondary-btn";
-  button.textContent = label || "Отменить встречу";
-
-  button.style.borderColor = "rgba(220,90,90,.5)";
-  button.style.color = "#FF8585";
-
-  button.addEventListener("click", () => {
-    openCancelDialog(candidate);
-  });
-
-  if (!hasMeetingId(candidate)) {
-    button.title = "У записи отсутствует идентификатор встречи";
-  }
-
-  return button;
-}
-
-
-/************************************************************
- * ПРОФИЛЬ КАНДИДАТА — STROY PODRYAD
- ************************************************************/
-
-function createCandidateNameButton(candidate) {
-  const button = document.createElement("button");
-
-  button.type = "button";
-  button.className = "candidate-name";
-  button.textContent = candidate.name || "Без ФИО";
-  button.title = "Открыть профиль кандидата";
-
-  Object.assign(button.style, {
-    display: "block",
-    padding: "0",
-    border: "0",
-    background: "transparent",
-    color: "#eef0f4",
-    font: "inherit",
-    fontWeight: "700",
-    fontSize: "12px",
-    textAlign: "left",
-    cursor: "pointer",
-    textDecoration: "underline",
-    textDecorationColor: "rgba(201,166,107,.45)",
-    textUnderlineOffset: "4px"
-  });
-
-  button.addEventListener("click", () => {
-    openCandidateProfile(candidate);
-  });
-
-  return button;
-}
-
-
-function openCandidateProfile(candidate) {
-  if (!candidate || !candidate.candidateId) {
-    notifyWarning("У кандидата отсутствует ID.", "Профиль");
-    return;
-  }
-
-  const old = document.getElementById("candidateProfileModal");
-  if (old) old.remove();
-
-  const overlay = document.createElement("div");
-  overlay.id = "candidateProfileModal";
-
-  Object.assign(overlay.style, {
-    position: "fixed",
-    inset: "0",
-    zIndex: "100001",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "16px",
-    background: "rgba(5,10,20,.84)",
-    backdropFilter: "blur(6px)"
-  });
-
-  const modal = document.createElement("div");
-
-  Object.assign(modal.style, {
-    width: "100%",
-    maxWidth: "760px",
-    maxHeight: "92vh",
-    overflowY: "auto",
-    padding: "24px",
-    borderRadius: "16px",
-    border: "1px solid #354258",
-    background: "#171e29",
-    color: "#eef1f6",
-    boxShadow: "0 25px 80px rgba(0,0,0,.55)"
-  });
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  function closeProfile() {
-    overlay.remove();
-    document.removeEventListener("keydown", escapeHandler);
-  }
-
-  const escapeHandler = event => {
-    if (event.key === "Escape") closeProfile();
-  };
-
-  document.addEventListener("keydown", escapeHandler);
-
-  overlay.addEventListener("click", event => {
-    if (event.target === overlay) closeProfile();
-  });
-
-  const loading = makeText(
-    "div",
-    "loading",
-    "Загружаем профиль кандидата..."
-  );
-
-  loading.style.padding = "45px 10px";
-  loading.style.textAlign = "center";
-  modal.appendChild(loading);
-
-  runServer(
-    "getCandidateProfile",
-    [candidate.candidateId],
-
-    result => {
-      if (!result || !result.success || !result.candidate) {
-        modal.replaceChildren();
-        modal.appendChild(makeText(
-          "div",
-          "empty",
-          result?.message || "Не удалось загрузить профиль."
-        ));
-        return;
-      }
-
-      renderCandidateProfile(
-        modal,
-        result,
-        candidate,
-        closeProfile
-      );
-    },
-
-    error => {
-      modal.replaceChildren();
-      modal.appendChild(makeText(
-        "div",
-        "empty",
-        "Ошибка загрузки: " + (error?.message || error)
-      ));
-    }
-  );
-
-  return closeProfile;
-}
-
-
-function renderCandidateProfile(modal, data, originalCandidate, closeProfile) {
-  const candidate = data.candidate;
-
-  modal.replaceChildren();
-
-  // Шапка профиля.
-  const header = makeText("div", "", "");
-
-  Object.assign(header.style, {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "15px",
-    marginBottom: "23px"
-  });
-
-  const titleBox = document.createElement("div");
-
-  titleBox.appendChild(makeText(
-    "div",
-    "eyebrow",
-    "STROY PODRYAD · ПРОФИЛЬ"
-  ));
-
-  const title = makeText(
-    "div",
-    "",
-    candidate.name || "Без ФИО"
-  );
-
-  Object.assign(title.style, {
-    fontSize: "22px",
-    fontWeight: "800",
-    overflowWrap: "anywhere"
-  });
-
-  titleBox.appendChild(title);
-
-  const closeButton = makeText("button", "", "×");
-
-  Object.assign(closeButton.style, {
-    border: "0",
-    background: "transparent",
-    color: "#9aa6b8",
-    fontSize: "30px",
-    cursor: "pointer"
-  });
-
-  closeButton.type = "button";
-  closeButton.addEventListener("click", closeProfile);
-
-  header.appendChild(titleBox);
-  header.appendChild(closeButton);
-  modal.appendChild(header);
-
-  // Статус.
-  const status = makeText(
-    "div",
-    "",
-    candidate.status || "Статус не указан"
-  );
-
-  Object.assign(status.style, {
-    display: "inline-flex",
-    padding: "7px 12px",
-    borderRadius: "8px",
-    background: "rgba(201,166,107,.13)",
-    border: "1px solid rgba(201,166,107,.3)",
-    color: "#d7c49b",
-    fontSize: "11px",
-    fontWeight: "800",
-    marginBottom: "20px"
-  });
-
-  modal.appendChild(status);
-
-  // Основная информация.
-  const grid = document.createElement("div");
-
-  Object.assign(grid.style, {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))",
-    gap: "10px",
-    marginBottom: "20px"
-  });
-
-  const fields = [
-    ["Телефон", candidate.phone],
-    ["Специальность", candidate.specialty],
-    ["Объект", candidate.object],
-    ["Источник", candidate.source],
-    ["Добавлен", candidate.added],
-    ["Назначенная встреча", candidate.meeting]
-  ];
-
-  fields.forEach(([label, value]) => {
-    const item = document.createElement("div");
-
-    Object.assign(item.style, {
-      padding: "13px",
-      borderRadius: "10px",
-      border: "1px solid #2a3444",
-      background: "#1c2533",
-      minWidth: "0"
-    });
-
-    const caption = makeText("div", "", label);
-
-    Object.assign(caption.style, {
-      color: "#9aa6b8",
-      fontSize: "10px",
-      marginBottom: "7px"
-    });
-
-    const content = makeText("div", "", value || "Не указано");
-
-    Object.assign(content.style, {
-      color: "#eef1f6",
-      fontSize: "12px",
-      fontWeight: "700",
-      overflowWrap: "anywhere"
-    });
-
-    item.appendChild(caption);
-    item.appendChild(content);
-    grid.appendChild(item);
-  });
-
-  modal.appendChild(grid);
-
-  // Комментарий.
-  const commentSection = document.createElement("div");
-
-  commentSection.style.marginBottom = "22px";
-
-  commentSection.appendChild(makeText(
-    "div",
-    "section-title",
-    "Комментарий"
-  ));
-
-  const comment = makeText(
-    "div",
-    "",
-    candidate.comment || "Комментариев пока нет."
-  );
-
-  Object.assign(comment.style, {
-    marginTop: "9px",
-    padding: "13px",
-    borderRadius: "9px",
-    background: "#1c2533",
-    border: "1px solid #2a3444",
-    color: "#cbd2dd",
-    fontSize: "12px",
-    whiteSpace: "pre-wrap",
-    overflowWrap: "anywhere"
-  });
-
-  commentSection.appendChild(comment);
-  modal.appendChild(commentSection);
-
-  // Быстрые действия.
-  const actions = document.createElement("div");
-
-  Object.assign(actions.style, {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
-    marginBottom: "25px"
-  });
-
-  if (candidate.phone) {
-    const call = makeText(
-      "a",
-      "quick-btn call",
-      "☎ Позвонить"
-    );
-
-    call.href = "tel:" + normalizePhone(candidate.phone);
-    actions.appendChild(call);
-
-    const max = makeText(
-      "button",
-      "quick-btn max",
-      "✉ MAX · номер скопирован"
-    );
-
-    max.type = "button";
-
-    max.addEventListener("click", async () => {
-      window.open(
-        "https://web.max.ru/",
-        "_blank",
-        "noopener,noreferrer"
-      );
-
-      await copyPhone(candidate.phone);
-    });
-
-    actions.appendChild(max);
-
-    const copy = makeText(
-      "button",
-      "quick-btn copy",
-      "▣ Копировать номер"
-    );
-
-    copy.type = "button";
-    copy.addEventListener("click", async () => {
-      if (await copyPhone(candidate.phone)) {
-        copy.textContent = "✓ Скопировано";
-      }
-    });
-
-    actions.appendChild(copy);
-  }
-
-  modal.appendChild(actions);
-
-  // Встречи.
-  modal.appendChild(makeText(
-    "div",
-    "section-title",
-    "История встреч"
-  ));
-
-  const meetings = Array.isArray(data.meetings)
-    ? data.meetings
-    : [];
-
-  if (!meetings.length) {
-    modal.appendChild(makeText(
-      "div",
-      "empty",
-      "Встреч пока нет."
-    ));
-  } else {
-    meetings.forEach(meeting => {
-      const item = document.createElement("div");
-
-      Object.assign(item.style, {
-        padding: "12px",
-        marginTop: "9px",
-        background: "#1c2533",
-        border: "1px solid #2a3444",
-        borderRadius: "9px"
-      });
-
-      item.appendChild(makeText(
-        "div",
-        "",
-        meeting.date || "Дата не указана"
-      ));
-
-      const meetingStatus = makeText(
-        "div",
-        "",
-        meeting.status || "Статус не указан"
-      );
-
-      meetingStatus.style.color = "#c9a66b";
-      meetingStatus.style.fontSize = "11px";
-      meetingStatus.style.marginTop = "5px";
-
-      item.appendChild(meetingStatus);
-
-      if (meeting.reason) {
-        item.appendChild(makeText(
-          "div",
-          "",
-          "Причина: " + meeting.reason
-        ));
-      }
-
-      modal.appendChild(item);
-    });
-  }
-
-  // История.
-  const historyTitle = makeText(
-    "div",
-    "section-title",
-    "История взаимодействий"
-  );
-
-  historyTitle.style.marginTop = "25px";
-  modal.appendChild(historyTitle);
-
-  const history = Array.isArray(data.history)
-    ? data.history
-    : [];
-
-  if (!history.length) {
-    modal.appendChild(makeText(
-      "div",
-      "empty",
-      "История пока пуста."
-    ));
-  } else {
-    history.forEach(entry => {
-      const item = document.createElement("div");
-
-      Object.assign(item.style, {
-        position: "relative",
-        padding: "13px 14px",
-        marginTop: "9px",
-        borderLeft: "2px solid #c9a66b",
-        borderRadius: "0 9px 9px 0",
-        background: "#1c2533"
-      });
-
-      const date = makeText(
-        "div",
-        "",
-        entry.date || "Дата не указана"
-      );
-
-      date.style.color = "#9aa6b8";
-      date.style.fontSize = "10px";
-
-      const action = makeText(
-        "div",
-        "",
-        entry.action || "Действие"
-      );
-
-      action.style.fontWeight = "800";
-      action.style.marginTop = "5px";
-
-      item.appendChild(date);
-      item.appendChild(action);
-
-      if (entry.oldValue || entry.newValue) {
-        item.appendChild(makeText(
-          "div",
-          "",
-          (entry.oldValue || "—") +
-          " → " +
-          (entry.newValue || "—")
-        ));
-      }
-
-      if (entry.comment) {
-        const note = makeText(
-          "div",
-          "",
-          entry.comment
-        );
-
-        note.style.color = "#cbd2dd";
-        note.style.fontSize = "12px";
-        note.style.marginTop = "7px";
-        note.style.whiteSpace = "pre-wrap";
-
-        item.appendChild(note);
-      }
-
-      modal.appendChild(item);
-    });
-  }
-
-  // Добавление заметки.
-  const noteSection = document.createElement("div");
-
-  noteSection.style.marginTop = "26px";
-
-  noteSection.appendChild(makeText(
-    "div",
-    "section-title",
-    "Добавить заметку"
-  ));
-
-  const textarea = document.createElement("textarea");
-
-  textarea.placeholder =
-    "Например: созвонились, готов приехать в пятницу...";
-
-  Object.assign(textarea.style, {
-    display: "block",
-    width: "100%",
-    minHeight: "95px",
-    marginTop: "10px",
-    padding: "12px",
-    resize: "vertical",
-    borderRadius: "9px",
-    border: "1px solid #354258",
-    background: "#121923",
-    color: "#eef1f6",
-    font: "inherit",
-    fontSize: "12px",
-    outline: "none"
-  });
-
-  const saveButton = makeText(
-    "button",
-    "primary-btn",
-    "Сохранить заметку"
-  );
-
-  saveButton.type = "button";
-  saveButton.style.marginTop = "10px";
-
-  saveButton.addEventListener("click", () => {
-    const note = textarea.value.trim();
-
-    if (!note) {
-      notifyWarning("Напиши текст заметки.", "Заметка");
-      textarea.focus();
-      return;
-    }
-
-    saveButton.disabled = true;
-    saveButton.textContent = "Сохраняем...";
-
-    runServer(
-      "addCandidateNote",
-      [candidate.candidateId, note],
-
-      result => {
-        if (!result || !result.success) {
-          saveButton.disabled = false;
-          saveButton.textContent = "Сохранить заметку";
-
-          notifyError(
-            result?.message || "Не удалось сохранить заметку.",
-            "Заметка"
-          );
-
-          return;
-        }
-
-        notifySuccess("Заметка добавлена в историю.", "Профиль");
-
-        closeProfile();
-
-        const updatedCandidate = allCandidates.find(
-          item => item.candidateId === candidate.candidateId
-        ) || originalCandidate;
-
-        openCandidateProfile(updatedCandidate);
-      },
-
-      error => {
-        saveButton.disabled = false;
-        saveButton.textContent = "Сохранить заметку";
-
-        notifyError(
-          error?.message || String(error),
-          "Заметка"
-        );
-      }
-    );
-  });
-
-  noteSection.appendChild(textarea);
-  noteSection.appendChild(saveButton);
-  modal.appendChild(noteSection);
-}
-
-function makeMobileCandidate(candidate) {
-  const card = makeText("div", "mobile-candidate", "");
-
-  const top = makeText("div", "mobile-candidate-top", "");
-  top.appendChild(createCandidateNameButton(candidate));
-  card.appendChild(top);
-
-  const details = makeText(
-    "div",
-    "mobile-candidate-details",
-    (candidate.phone || "Телефон не указан") + "\n" +
-    (candidate.specialty || "Специальность не указана") + "\n" +
-    "Источник: " + (candidate.source || "Не указан") + "\n" +
-    "Объект: " + (candidate.object || "Не указан") + "\n" +
-    "Встреча: " + (candidate.meeting || "Не назначена")
-  );
-
-  card.appendChild(details);
-  card.appendChild(makeStatusSelect(candidate));
-  card.appendChild(createQuickActions(candidate));
-
-  const actions = makeText("div", "candidate-actions", "");
-
-  actions.appendChild(createRescheduleButton(
-    candidate,
-    hasMeetingId(candidate) ? "Перенести встречу" : "Проверить встречу"
-  ));
-
-  if (hasMeetingId(candidate)) {
-    actions.appendChild(createCancelButton(candidate, "Отменить встречу"));
-  }
-
-  card.appendChild(actions);
-
-  return card;
-}
-
-function makeTodayMobileCard(candidate) {
-  const card = makeText("div", "today-card", "");
-
-  const top = makeText("div", "today-card-top", "");
-
-  const info = document.createElement("div");
-
-  info.appendChild(makeText(
-    "div",
-    "today-card-name",
-    candidate.name || "Без ФИО"
-  ));
-
-  info.appendChild(makeText(
-    "div",
-    "today-card-specialty",
-    candidate.specialty || "Специальность не указана"
-  ));
-
-  info.appendChild(createPhoneLink(candidate.phone));
-
-  top.appendChild(info);
-
-  top.appendChild(makeText(
-    "div",
-    "today-card-time",
-    getMeetingTime(candidate.meeting)
-  ));
-
-  card.appendChild(top);
-
-  card.appendChild(makeText(
-    "div",
-    "today-card-object",
-    "Объект: " + (candidate.object || "Не указан")
-  ));
-
-  const status = makeText("div", "today-card-status", "");
-  status.appendChild(makeStatusSelect(candidate));
-  card.appendChild(status);
-
-  card.appendChild(createQuickActions(candidate));
-
-  return card;
-}
-
-function renderTodayCandidates() {
-  const candidates = getTodayCandidates();
-
-  const table = document.getElementById("todayTable");
-  const mobile = document.getElementById("todayMobile");
-
-  table.replaceChildren();
-  mobile.replaceChildren();
-
-  if (!candidates.length) {
-    const row = document.createElement("tr");
-    const cell = makeText(
-      "td",
-      "empty",
-      "На сегодня встреч пока нет. Можно выдохнуть ☕"
-    );
-
-    cell.colSpan = 5;
-    row.appendChild(cell);
-    table.appendChild(row);
-
-    mobile.appendChild(makeText(
-      "div",
-      "empty",
-      "На сегодня встреч пока нет. Можно выдохнуть ☕"
-    ));
-
-    return;
-  }
-
-  candidates.forEach(candidate => {
-    const row = document.createElement("tr");
-
-    const person = document.createElement("td");
-
-    person.appendChild(makeText(
-      "div",
-      "candidate-name",
-      candidate.name || "Без ФИО"
-    ));
-
-    person.appendChild(createPhoneLink(candidate.phone));
-
-    row.appendChild(person);
-
-    row.appendChild(makeText(
-      "td",
-      "",
-      candidate.specialty || "—"
-    ));
-
-    const timeCell = document.createElement("td");
-    timeCell.appendChild(makeText(
-      "div",
-      "today-time",
-      "◷ " + getMeetingTime(candidate.meeting)
-    ));
-
-    row.appendChild(timeCell);
-
-    const statusCell = document.createElement("td");
-    statusCell.appendChild(makeStatusSelect(candidate));
-    row.appendChild(statusCell);
-
-    const actionsCell = document.createElement("td");
-    actionsCell.appendChild(createQuickActions(candidate));
-    row.appendChild(actionsCell);
-
-    table.appendChild(row);
-    mobile.appendChild(makeTodayMobileCard(candidate));
-  });
-}
-
-
-function handleAnalyticsPeriodChange() {
-  const period = document.getElementById("analyticsPeriod").value;
-  const custom = period === "custom";
-
-  document.getElementById("analyticsDateStart").style.display =
-    custom ? "" : "none";
-
-  document.getElementById("analyticsDateEnd").style.display =
-    custom ? "" : "none";
-}
-
-function loadRecruitmentAnalytics() {
-  const period = document.getElementById("analyticsPeriod").value;
-
-  const filters = { period };
-
-  if (period === "custom") {
-    const start = document.getElementById("analyticsDateStart").value;
-    const end = document.getElementById("analyticsDateEnd").value;
-
-    if (!start || !end) {
-      showToast("Выберите обе даты периода", "warning");
-      return;
-    }
-
-    if (start > end) {
-      showToast("Начальная дата не может быть позже конечной", "warning");
-      return;
-    }
-
-    filters.startDate = start;
-    filters.endDate = end;
-  }
-
-  const content = document.getElementById("analyticsContent");
-  content.innerHTML = '<div class="loading">Загружаем аналитику...</div>';
-
-  runServer(
-    "getRecruitmentAnalytics",
-    [filters],
-    function(result) {
-      if (!result || !result.success) {
-        content.textContent = "Не удалось получить аналитику";
-        showToast("Ошибка загрузки аналитики", "error");
-        return;
-      }
-
-      renderRecruitmentAnalytics(result);
-    },
-    function(error) {
-      content.textContent =
-        error && error.message
-          ? error.message
-          : "Ошибка загрузки аналитики";
-
-      showToast("Не удалось загрузить аналитику", "error");
-    }
-  );
-}
-
-function renderRecruitmentAnalytics(data) {
-  const summary = data.summary || {};
-
-  document.getElementById("analyticsTotal").textContent =
-    summary.total ?? 0;
-
-  document.getElementById("analyticsArrived").textContent =
-    summary.arrived ?? 0;
-
-  document.getElementById("analyticsStarted").textContent =
-    summary.started ?? 0;
-
-  document.getElementById("analyticsMeetings").textContent =
-    summary.meetings ?? 0;
-
-  document.getElementById("analyticsArrivalConversion").textContent =
-    "Конверсия: " + (summary.arrivalConversion ?? 0) + "%";
-
-  document.getElementById("analyticsStartConversion").textContent =
-    "Конверсия: " + (summary.startConversion ?? 0) + "%";
-
-  document.getElementById("analyticsPeriodLabel").textContent =
-    "Период: " + data.dates.start + " — " + data.dates.end;
-
-  const content = document.getElementById("analyticsContent");
-
-  content.replaceChildren();
-
-  content.appendChild(
-    createAnalyticsBlock("Кандидаты по статусам", data.statuses)
-  );
-
-  content.appendChild(
-    createAnalyticsBlock("По специальностям", data.specialties)
-  );
-
-  content.appendChild(
-    createAnalyticsBlock("Источники привлечения", data.sources)
-  );
-
-  content.appendChild(
-    createAnalyticsBlock("Строительные объекты", data.objects)
-  );
-}
-
-function createAnalyticsBlock(title, items) {
-  const block = document.createElement("div");
-  block.className = "analytics-block";
-
-  const heading = document.createElement("div");
-  heading.className = "analytics-block-title";
-  heading.textContent = title;
-
-  block.appendChild(heading);
-
-  const list = document.createElement("div");
-  list.className = "analytics-list";
-
-  if (!items || !items.length) {
-    const empty = document.createElement("div");
-    empty.className = "analytics-empty";
-    empty.textContent = "Нет данных за выбранный период";
-    list.appendChild(empty);
-  } else {
-    const max = Math.max(...items.map(item => Number(item.count) || 0), 1);
-
-    items.forEach(item => {
-      const row = document.createElement("div");
-      row.className = "analytics-row";
-
-      const name = document.createElement("div");
-      name.className = "analytics-name";
-      name.textContent = item.name || "Не указано";
-
-      const track = document.createElement("div");
-      track.className = "analytics-track";
-
-      const fill = document.createElement("div");
-      fill.className = "analytics-fill";
-      fill.style.width =
-        Math.max(0, Math.min(100, (Number(item.count) / max) * 100)) + "%";
-
-      track.appendChild(fill);
-
-      const value = document.createElement("div");
-      value.className = "analytics-value";
-      value.textContent = item.count ?? 0;
-
-      row.append(name, track, value);
-      list.appendChild(row);
-    });
-  }
-
-  block.appendChild(list);
-
-  return block;
-}
-
-function renderCandidates() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
-  const status = document.getElementById("statusFilter").value;
-  const specialty = document.getElementById("specialtyFilter").value;
-
-  const filtered = allCandidates.filter(candidate => {
-    const values = [
-      candidate.name,
-      candidate.phone,
-      candidate.specialty,
-      candidate.source,
-      candidate.comment,
-      candidate.object
-    ];
-
-    const matchesSearch = values.some(value =>
-      String(value || "").toLowerCase().includes(search)
-    ) || (
-      (!candidate.name || !candidate.name.trim()) &&
-      "без фио".includes(search)
-    );
-
-    const matchesStatus = !status || candidate.status === status;
-    const matchesSpecialty = !specialty || candidate.specialty === specialty;
-
-    return matchesSearch && matchesStatus && matchesSpecialty;
-  });
-
-  const table = document.getElementById("candidatesTable");
-  const mobile = document.getElementById("candidatesMobile");
-
-  table.replaceChildren();
-  mobile.replaceChildren();
-
-  if (!filtered.length) {
-    const row = document.createElement("tr");
-    const cell = makeText("td", "empty", "Кандидаты не найдены");
-    cell.colSpan = 6;
-    row.appendChild(cell);
-    table.appendChild(row);
-    mobile.appendChild(makeText("div", "empty", "Кандидаты не найдены"));
-  } else {
-    filtered.forEach(candidate => {
-      const row = document.createElement("tr");
-
-      const person = document.createElement("td");
-      person.appendChild(createCandidateNameButton(candidate));
-      person.appendChild(createPhoneLink(candidate.phone));
-      row.appendChild(person);
-
-      row.appendChild(makeText("td", "", candidate.specialty || "—"));
-      row.appendChild(makeText("td", "", candidate.source || "Не указан"));
-      row.appendChild(makeText("td", "", candidate.added || "—"));
-      row.appendChild(makeText("td", "", candidate.meeting || "Не назначена"));
-
-      const statusCell = document.createElement("td");
-      statusCell.appendChild(makeStatusSelect(candidate));
-
-      const actions = makeText("div", "candidate-actions", "");
-
-      actions.appendChild(createRescheduleButton(
-        candidate,
-        hasMeetingId(candidate) ? "Перенести" : "Проверить встречу"
-      ));
-
-      if (hasMeetingId(candidate)) {
-        actions.appendChild(createCancelButton(candidate, "Отменить"));
-      }
-
-      statusCell.appendChild(actions);
-      row.appendChild(statusCell);
-
-      table.appendChild(row);
-      mobile.appendChild(makeMobileCandidate(candidate));
-    });
-  }
-
-  document.getElementById("resultCount").textContent =
-    "Показано кандидатов: " + filtered.length + " из " + allCandidates.length;
-}
-
-function loadCandidates() {
-  if (isLoadingCandidates) return;
-
-  isLoadingCandidates = true;
-
-  const refreshButton = document.getElementById("refreshButton");
-  refreshButton.disabled = true;
-  refreshButton.textContent = "Загрузка...";
-
-  document.getElementById("todayTable").innerHTML =
-    '<tr><td colspan="5" class="loading">Загружаем встречи...</td></tr>';
-
-  runServer(
-    "getCandidates",
-    [],
-    result => {
-      isLoadingCandidates = false;
-      refreshButton.disabled = false;
-      refreshButton.textContent = "↻ Обновить";
-
-      if (!result || !result.success) {
-        showLoadError(result?.message || "Не удалось загрузить базу");
-        return;
-      }
-
-      allCandidates = Array.isArray(result.candidates) ? result.candidates : [];
-
-      updateStats(result.stats || {});
-      renderTodayCandidates();
-      renderCandidates();
-
-      if (document.getElementById("page-calendar").classList.contains("active")) {
-        loadCalendar();
-      }
-    },
-    error => {
-      isLoadingCandidates = false;
-      refreshButton.disabled = false;
-      refreshButton.textContent = "↻ Обновить";
-      showLoadError(error?.message || "Ошибка соединения");
-    }
-  );
-}
-
-function showLoadError(message) {
-  const text = "Ошибка загрузки: " + message;
-
-  ["todayTable", "candidatesTable"].forEach(id => {
-    const table = document.getElementById(id);
-    table.replaceChildren();
-
-    const row = document.createElement("tr");
-    const cell = makeText("td", "empty", text);
-    cell.colSpan = id === "todayTable" ? 5 : 6;
-    row.appendChild(cell);
-    table.appendChild(row);
-  });
-
-  document.getElementById("todayMobile").replaceChildren(
-    makeText("div", "empty", text)
-  );
-
-  document.getElementById("candidatesMobile").replaceChildren(
-    makeText("div", "empty", text)
-  );
-}
-
-function updateStatus(row, status, select) {
-  if (!row) {
-    notifyError("Не найден номер строки кандидата. Обнови базу.", "Статус");
-    loadCandidates();
-    return;
-  }
-
-  select.disabled = true;
-
-  runServer(
-    "updateCandidateStatus",
-    [row, status],
-    result => {
-      select.disabled = false;
-
-      if (!result || !result.success) {
-        notifyError("Не удалось изменить статус: " + (result?.message || "Неизвестная ошибка"), "Статус");
-        loadCandidates();
-        return;
-      }
-
-      const candidate = allCandidates.find(item => String(item.row) === String(row));
-      if (candidate) candidate.status = status;
-
-      renderTodayCandidates();
-      renderCandidates();
-    },
-    error => {
-      select.disabled = false;
-      notifyError(error?.message || String(error), "Ошибка");
-      loadCandidates();
-    }
-  );
-}
-
-function openRescheduleDialog(candidate) {
-  if (!hasMeetingId(candidate)) {
-    notifyWarning(
-      "Активная встреча не найдена. Возможно, кандидат добавлен без встречи или нет meetingId.",
-      "Перенос"
-    );
-    return;
-  }
-
-  const oldModal = document.getElementById("rescheduleModal");
-  if (oldModal) oldModal.remove();
-
-  const overlay = document.createElement("div");
-  overlay.id = "rescheduleModal";
-
-  Object.assign(overlay.style, {
-    position:"fixed",
-    inset:"0",
-    background:"rgba(5,10,20,.82)",
-    backdropFilter:"blur(5px)",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    zIndex:"99999",
-    padding:"20px"
-  });
-
-  const modal = document.createElement("div");
-
-  Object.assign(modal.style, {
-    width:"100%",
-    maxWidth:"440px",
-    maxHeight:"90vh",
-    overflowY:"auto",
-    background:"#17243A",
-    border:"1px solid rgba(214,174,89,.35)",
-    borderRadius:"18px",
-    padding:"28px",
-    boxShadow:"0 25px 80px rgba(0,0,0,.5)",
-    color:"#F4F4F4",
-    fontFamily:"Arial,sans-serif",
-    boxSizing:"border-box"
-  });
-
-  modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-size:21px;font-weight:700;color:#D6AE59;">Перенос встречи</div>
-      <button id="closeReschedule" type="button" aria-label="Закрыть"
-        style="background:none;border:none;color:#9CA8B9;font-size:25px;cursor:pointer;">&times;</button>
-    </div>
-
-    <div id="rescheduleCandidate" style="color:#B8C3D3;font-size:14px;margin-bottom:24px;"></div>
-
-    <label style="display:block;font-size:13px;color:#B8C3D3;margin-bottom:8px;">Новая дата</label>
-    <input id="rescheduleDate" type="date"
-      style="width:100%;height:46px;padding:0 12px;margin-bottom:18px;border-radius:9px;border:1px solid #40516B;background:#101B2D;color:white;font-size:15px;box-sizing:border-box;color-scheme:dark;">
-
-    <label style="display:block;font-size:13px;color:#B8C3D3;margin-bottom:8px;">Новое время</label>
-    <input id="rescheduleTime" type="time" value="10:00"
-      style="width:100%;height:46px;padding:0 12px;margin-bottom:18px;border-radius:9px;border:1px solid #40516B;background:#101B2D;color:white;font-size:15px;box-sizing:border-box;color-scheme:dark;">
-
-    <label style="display:block;font-size:13px;color:#B8C3D3;margin-bottom:8px;">Причина переноса</label>
-    <textarea id="rescheduleReason" placeholder="Например: кандидат попросил перенести встречу..."
-      rows="3"
-      style="width:100%;padding:12px;margin-bottom:14px;border-radius:9px;border:1px solid #40516B;background:#101B2D;color:white;font-size:14px;resize:vertical;box-sizing:border-box;font-family:Arial,sans-serif;"></textarea>
-
-    <div id="rescheduleError" style="display:none;color:#FF8585;font-size:13px;margin-bottom:14px;"></div>
-
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button id="cancelReschedule" type="button"
-        style="flex:1;padding:13px;border-radius:9px;border:1px solid #40516B;background:#263750;color:#D5DCE6;font-weight:600;cursor:pointer;">Отмена</button>
-
-      <button id="confirmReschedule" type="button"
-        style="flex:1;padding:13px;border-radius:9px;border:none;background:#D6AE59;color:#17243A;font-weight:700;cursor:pointer;">Перенести встречу</button>
-    </div>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  const dateField = modal.querySelector("#rescheduleDate");
-  const timeField = modal.querySelector("#rescheduleTime");
-  const reasonField = modal.querySelector("#rescheduleReason");
-  const errorBox = modal.querySelector("#rescheduleError");
-  const submitButton = modal.querySelector("#confirmReschedule");
-
-  modal.querySelector("#rescheduleCandidate").textContent =
-    (candidate.name || "Без ФИО") + " · " +
-    (candidate.phone || "Телефон не указан");
-
-  const tomorrow = getTomorrow();
-  dateField.value = tomorrow;
-  dateField.min = tomorrow;
-
-  function closeModal() {
-    overlay.remove();
-  }
-
-  modal.querySelector("#closeReschedule").addEventListener("click", closeModal);
-  modal.querySelector("#cancelReschedule").addEventListener("click", closeModal);
-
-  overlay.addEventListener("click", event => {
-    if (event.target === overlay) closeModal();
-  });
-
-  const escapeHandler = event => {
-    if (event.key === "Escape") {
-      closeModal();
-      document.removeEventListener("keydown", escapeHandler);
-    }
-  };
-
-  document.addEventListener("keydown", escapeHandler);
-
-  submitButton.addEventListener("click", () => {
-    const newDate = dateField.value;
-    const newTime = timeField.value;
-    const reason = reasonField.value.trim();
-
-    errorBox.style.display = "none";
-
-    if (!newDate || !newTime || !reason) {
-      errorBox.textContent = "Заполни дату, время и причину переноса.";
-      errorBox.style.display = "block";
-      return;
-    }
-
-    if (newDate < dateField.min) {
-      errorBox.textContent = "Выбери дату не раньше завтрашнего дня.";
-      errorBox.style.display = "block";
-      return;
-    }
-
-    const parts = newDate.split("-").map(Number);
-    const checkedDate = new Date(parts[0], parts[1] - 1, parts[2]);
-
-    if (
-      parts.length !== 3 ||
-      checkedDate.getFullYear() !== parts[0] ||
-      checkedDate.getMonth() !== parts[1] - 1 ||
-      checkedDate.getDate() !== parts[2]
-    ) {
-      errorBox.textContent = "Указана некорректная дата.";
-      errorBox.style.display = "block";
-      return;
-    }
-
-    const hour = Number(newTime.split(":")[0]);
-    const minute = Number(newTime.split(":")[1]);
-
-    if (
-      hour < 8 || hour > 19 ||
-      (hour === 19 && minute > 0) ||
-      ![0, 30].includes(minute)
-    ) {
-      errorBox.textContent = "Время встречи должно быть с 08:00 до 19:00 с шагом 30 минут.";
-      errorBox.style.display = "block";
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = "Переносим...";
-
-    runServer(
-      "rescheduleMeeting",
-      [candidate.meetingId, newDate, newTime, reason],
-      result => {
-        if (!result || !result.success) {
-          submitButton.disabled = false;
-          submitButton.textContent = "Перенести встречу";
-          errorBox.textContent = result?.message || "Не удалось перенести встречу.";
-          errorBox.style.display = "block";
-          return;
-        }
-
-        closeModal();
-
-        if (result.notificationSent === true) {
-          notifySuccess("Встреча перенесена. Уведомление отправлено в MAX.", "Перенос");
-        } else {
-          notifyWarning(
-            "Встреча перенесена, но уведомление в MAX не подтверждено. " +
-            (result.message || "Проверь GitHub Actions."),
-            "Перенос"
-          );
-        }
-
-        loadCandidates();
-      },
-      error => {
-        submitButton.disabled = false;
-        submitButton.textContent = "Перенести встречу";
-        errorBox.textContent = "Ошибка: " + (error?.message || error);
-        errorBox.style.display = "block";
-      }
-    );
-  });
-}
-
-function openCancelDialog(candidate) {
-  if (!hasMeetingId(candidate)) {
-    notifyWarning("У этого кандидата не найдена активная встреча.", "Встреча");
-    return;
-  }
-
-  const oldModal = document.getElementById("cancelMeetingModal");
-  if (oldModal) oldModal.remove();
-
-  const overlay = document.createElement("div");
-  overlay.id = "cancelMeetingModal";
-
-  Object.assign(overlay.style, {
-    position:"fixed",
-    inset:"0",
-    background:"rgba(5,10,20,.82)",
-    backdropFilter:"blur(5px)",
-    display:"flex",
-    alignItems:"center",
-    justifyContent:"center",
-    zIndex:"99999",
-    padding:"20px"
-  });
-
-  const modal = document.createElement("div");
-
-  Object.assign(modal.style, {
-    width:"100%",
-    maxWidth:"440px",
-    background:"#17243A",
-    border:"1px solid rgba(214,80,80,.4)",
-    borderRadius:"18px",
-    padding:"28px",
-    boxShadow:"0 25px 80px rgba(0,0,0,.5)",
-    color:"#F4F4F4",
-    fontFamily:"Arial,sans-serif",
-    boxSizing:"border-box"
-  });
-
-  modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-      <div style="font-size:21px;font-weight:700;color:#FF8585;">Отмена встречи</div>
-      <button id="closeCancelMeeting" type="button"
-        style="background:none;border:none;color:#9CA8B9;font-size:25px;cursor:pointer;">&times;</button>
-    </div>
-
-    <div id="cancelCandidateInfo"
-      style="color:#B8C3D3;font-size:14px;margin-bottom:20px;"></div>
-
-    <div style="padding:14px;background:#263750;border-radius:9px;margin-bottom:20px;color:#FFD0D0;font-size:13px;">
-      Встреча будет удалена из Google Календаря, а её статус изменится на «Отменена».
-    </div>
-
-    <label style="display:block;font-size:13px;color:#B8C3D3;margin-bottom:8px;">
-      Причина отмены
-    </label>
-
-    <textarea id="cancelMeetingReason"
-      placeholder="Например: кандидат отказался от поездки..."
-      rows="3"
-      style="width:100%;padding:12px;margin-bottom:14px;border-radius:9px;border:1px solid #40516B;background:#101B2D;color:white;font-size:14px;resize:vertical;box-sizing:border-box;font-family:Arial,sans-serif;"></textarea>
-
-    <div id="cancelMeetingError"
-      style="display:none;color:#FF8585;font-size:13px;margin-bottom:14px;"></div>
-
-    <div style="display:flex;gap:10px;margin-top:8px;">
-      <button id="cancelMeetingBack" type="button"
-        style="flex:1;padding:13px;border-radius:9px;border:1px solid #40516B;background:#263750;color:#D5DCE6;font-weight:600;cursor:pointer;">
-        Назад
-      </button>
-
-      <button id="confirmCancelMeeting" type="button"
-        style="flex:1;padding:13px;border-radius:9px;border:none;background:#C94D4D;color:white;font-weight:700;cursor:pointer;">
-        Отменить встречу
-      </button>
-    </div>
-  `;
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  const reasonField = modal.querySelector("#cancelMeetingReason");
-  const errorBox = modal.querySelector("#cancelMeetingError");
-  const submitButton = modal.querySelector("#confirmCancelMeeting");
-
-  modal.querySelector("#cancelCandidateInfo").textContent =
-    (candidate.name || "Без ФИО") + " · " +
-    (candidate.phone || "Телефон не указан");
-
-  function closeModal() {
-    overlay.remove();
-  }
-
-  modal.querySelector("#closeCancelMeeting").addEventListener("click", closeModal);
-  modal.querySelector("#cancelMeetingBack").addEventListener("click", closeModal);
-
-  overlay.addEventListener("click", event => {
-    if (event.target === overlay) closeModal();
-  });
-
-  const escapeHandler = event => {
-    if (event.key === "Escape") {
-      closeModal();
-      document.removeEventListener("keydown", escapeHandler);
-    }
-  };
-
-  document.addEventListener("keydown", escapeHandler);
-
-  submitButton.addEventListener("click", () => {
-    const reason = reasonField.value.trim();
-
-    errorBox.style.display = "none";
-
-    if (!reason) {
-      errorBox.textContent = "Укажи причину отмены встречи.";
-      errorBox.style.display = "block";
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = "Отменяем...";
-
-    runServer(
-      "cancelMeeting",
-      [candidate.meetingId, reason],
-      result => {
-        if (!result || !result.success) {
-          submitButton.disabled = false;
-          submitButton.textContent = "Отменить встречу";
-          errorBox.textContent = result?.message || "Не удалось отменить встречу.";
-          errorBox.style.display = "block";
-          return;
-        }
-
-        closeModal();
-
-        if (result.notificationSent === true) {
-          notifySuccess("Встреча отменена. Уведомление отправлено в MAX.", "Отмена");
-        } else {
-          notifyWarning(
-            "Встреча отменена, но уведомление в MAX не подтверждено. " +
-            (result.message || "Проверь GitHub Actions."),
-            "Отмена"
-          );
-        }
-
-        loadCandidates();
-      },
-      error => {
-        submitButton.disabled = false;
-        submitButton.textContent = "Отменить встречу";
-        errorBox.textContent = "Ошибка: " + (error?.message || error);
-        errorBox.style.display = "block";
-      }
-    );
-  });
-}
-
-document.getElementById("searchInput")
-  .addEventListener("input", renderCandidates);
-
-document.getElementById("statusFilter")
-  .addEventListener("change", renderCandidates);
-
-document.getElementById("specialtyFilter")
-  .addEventListener("change", renderCandidates);
-
-const form = document.getElementById("candidateForm");
-const submitButton = document.getElementById("submitButton");
-const formMessage = document.getElementById("formMessage");
-
-form.addEventListener("submit", event => {
-  event.preventDefault();
-
-  if (isSubmittingCandidate) return;
-  if (!form.reportValidity()) return;
-
-  isSubmittingCandidate = true;
-  submitButton.disabled = true;
-  submitButton.textContent = "Сохраняем...";
-  formMessage.className = "message";
-  formMessage.textContent = "";
-
-  const data = Object.fromEntries(new FormData(form).entries());
-
-  runServer(
-    "createCandidate",
-    [data],
-    result => {
-      isSubmittingCandidate = false;
-      submitButton.disabled = false;
-      submitButton.textContent = "Добавить кандидата и создать встречу";
-
-      if (!result || !result.success) {
-        const errText = result?.message || "Не удалось создать встречу";
-        formMessage.textContent = errText;
-        formMessage.className = "message error";
-
-        if (result && result.duplicate) {
-          notifyWarning(errText, "Дубликат");
-        } else {
-          notifyError(errText, "Добавление");
-        }
-        return;
-      }
-
-      formMessage.textContent =
-        "Кандидат сохранён, встреча создана в календаре.";
-      formMessage.className = "message success";
-
-      notifySuccess(
-        (data.name || "Кандидат") + " записан на " +
-        (data.date || "") + " в " + (data.time || "") + ".",
-        "Кандидат добавлен"
-      );
-
-      form.reset();
-      dateInput.value = getTomorrow();
-      dateInput.min = getTomorrow();
-      timeSelect.value = "10:00";
-      loadObjects();
-      loadCandidates();
-
-      // Плавно убираем зелёный блок под формой
-      setTimeout(() => {
-        formMessage.className = "message";
-        formMessage.textContent = "";
-      }, 4500);
-    },
-    error => {
-      isSubmittingCandidate = false;
-      submitButton.disabled = false;
-      submitButton.textContent = "Добавить кандидата и создать встречу";
-
-      const errText = error?.message || String(error);
-      formMessage.textContent = errText;
-      formMessage.className = "message error";
-      notifyError(errText, "Добавление");
-    }
-  );
-});
-
-form.addEventListener("reset", () => {
-  setTimeout(() => {
-    dateInput.value = getTomorrow();
-    dateInput.min = getTomorrow();
-    timeSelect.value = "10:00";
-    formMessage.className = "message";
-    formMessage.textContent = "";
-  }, 0);
-});
-
-loadObjects();
-loadCandidates();
 </script>
 </body>
 </html>
