@@ -33,6 +33,13 @@ const CANDIDATE_STATUSES = [
 function doGet(e) {
   const page = e && e.parameter ? e.parameter.page : "";
 
+  if (page === "mobile") {
+    return HtmlService
+      .createHtmlOutputFromFile("Mobile")
+      .setTitle("STROY PODRYAD — Mobile")
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
   if (page === "foreman") {
     return HtmlService
       .createHtmlOutputFromFile("Foreman")
@@ -45,8 +52,6 @@ function doGet(e) {
     .setTitle("STROY PODRYAD — CRM")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
-
-
 
 /************************************************************
  * 2. ВНЕШНИЙ API
