@@ -984,6 +984,122 @@
     }
     .toast-close:hover { color: var(--text); }
 
+
+/* ===== АНАЛИТИКА ===== */
+
+.analytics-stats {
+  margin-bottom: 22px;
+}
+
+.analytics-toolbar {
+  border-bottom: 1px solid var(--border);
+}
+
+.analytics-toolbar .control {
+  min-width: 170px;
+}
+
+.analytics-content {
+  padding: 22px;
+  display: grid;
+  gap: 22px;
+}
+
+.analytics-block {
+  min-width: 0;
+}
+
+.analytics-block-title {
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.analytics-list {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 170px) 1fr 42px;
+  align-items: center;
+  gap: 12px;
+}
+
+.analytics-name {
+  color: #cbd2dd;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.analytics-track {
+  height: 9px;
+  background: #151c27;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.analytics-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: var(--gold);
+  transition: width .3s ease;
+}
+
+.analytics-value {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-empty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 12px 0;
+}
+
+.analytics-date-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 700px) {
+  .analytics-content {
+    padding: 15px;
+  }
+
+  .analytics-toolbar {
+    align-items: stretch;
+  }
+
+  .analytics-toolbar .control {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .analytics-row {
+    grid-template-columns: 95px minmax(40px, 1fr) 30px;
+    gap: 8px;
+  }
+
+  .analytics-name,
+  .analytics-value {
+    font-size: 10px;
+  }
+
+  .analytics-stats .stat-card {
+    padding: 15px;
+  }
+
+  .analytics-stats .stat-number {
+    font-size: 27px;
+  }
+}
+
+
     @media (max-width: 700px) {
       .toast-container {
         top: auto;
@@ -1025,6 +1141,9 @@
       </button>
       <button class="nav-btn" data-page="calendar">
   <span class="nav-icon">▦</span><span>Календарь</span>
+</button>
+<button class="nav-btn" data-page="analytics">
+  <span class="nav-icon">▥</span><span>Аналитика</span>
 </button>
       <button class="nav-btn" data-page="add">
         <span class="nav-icon">＋</span><span>Добавить кандидата</span>
@@ -1211,6 +1330,82 @@
 
   </div>
 </section>
+
+<section class="page" id="page-analytics">
+
+  <div class="stats-grid analytics-stats">
+    <div class="stat-card">
+      <div class="stat-label">ВСЕГО КАНДИДАТОВ</div>
+      <div class="stat-number" id="analyticsTotal">—</div>
+      <div class="stat-caption">Добавлено за период</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">ПРИБЫЛИ НА ОБЪЕКТ</div>
+      <div class="stat-number" id="analyticsArrived">—</div>
+      <div class="stat-caption" id="analyticsArrivalConversion">Конверсия: —</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">НАЧАЛИ РАБОТАТЬ</div>
+      <div class="stat-number" id="analyticsStarted">—</div>
+      <div class="stat-caption" id="analyticsStartConversion">Конверсия: —</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">ВСТРЕЧИ</div>
+      <div class="stat-number" id="analyticsMeetings">—</div>
+      <div class="stat-caption">За выбранный период</div>
+    </div>
+  </div>
+
+  <div class="section-card">
+
+    <div class="section-head">
+      <div>
+        <div class="section-title">Показатели рекрутинга</div>
+        <div class="section-subtitle" id="analyticsPeriodLabel">
+          Выберите период анализа
+        </div>
+      </div>
+
+      <button class="secondary-btn" type="button"
+        onclick="loadRecruitmentAnalytics()">
+        ↻ Обновить
+      </button>
+    </div>
+
+    <div class="toolbar analytics-toolbar">
+      <select class="control" id="analyticsPeriod"
+        onchange="handleAnalyticsPeriodChange()">
+        <option value="today">Сегодня</option>
+        <option value="week">Последние 7 дней</option>
+        <option value="month" selected>Текущий месяц</option>
+        <option value="lastMonth">Прошлый месяц</option>
+        <option value="all">Всё время</option>
+        <option value="custom">Произвольный период</option>
+      </select>
+
+      <input class="control" type="date" id="analyticsDateStart"
+        style="display:none">
+
+      <input class="control" type="date" id="analyticsDateEnd"
+        style="display:none">
+
+      <button class="primary-btn" type="button"
+        onclick="loadRecruitmentAnalytics()">
+        Применить
+      </button>
+    </div>
+
+    <div id="analyticsContent" class="analytics-content">
+      <div class="loading">Загрузка аналитики...</div>
+    </div>
+
+  </div>
+
+</section>
+
     <section class="page" id="page-add">
       <div class="form-layout">
         <div class="form-panel">
@@ -1347,6 +1542,7 @@ const pageTitles = {
   dashboard: "Панель управления",
   candidates: "База кандидатов",
   calendar: "Календарь встреч",
+  analytics: "Аналитика рекрутинга",
   add: "Добавление кандидата"
 };
 
@@ -2394,6 +2590,7 @@ function showPage(page) {
   if (page === "candidates") renderCandidates();
   if (page === "dashboard") renderTodayCandidates();
   if (page === "calendar") loadCalendar();
+  if (page === "analytics") loadRecruitmentAnalytics();
 }
 
 document.querySelectorAll(".nav-btn").forEach(button => {
@@ -2737,15 +2934,612 @@ function createCancelButton(candidate, label) {
   return button;
 }
 
+
+/************************************************************
+ * ПРОФИЛЬ КАНДИДАТА — STROY PODRYAD
+ ************************************************************/
+
+function createCandidateNameButton(candidate) {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.className = "candidate-name";
+  button.textContent = candidate.name || "Без ФИО";
+  button.title = "Открыть профиль кандидата";
+
+  Object.assign(button.style, {
+    display: "block",
+    padding: "0",
+    border: "0",
+    background: "transparent",
+    color: "#eef0f4",
+    font: "inherit",
+    fontWeight: "700",
+    fontSize: "12px",
+    textAlign: "left",
+    cursor: "pointer",
+    textDecoration: "underline",
+    textDecorationColor: "rgba(201,166,107,.45)",
+    textUnderlineOffset: "4px"
+  });
+
+  button.addEventListener("click", () => {
+    openCandidateProfile(candidate);
+  });
+
+  return button;
+}
+
+
+function openCandidateProfile(candidate) {
+  if (!candidate || !candidate.candidateId) {
+    notifyWarning("У кандидата отсутствует ID.", "Профиль");
+    return;
+  }
+
+  const old = document.getElementById("candidateProfileModal");
+  if (old) old.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "candidateProfileModal";
+
+  Object.assign(overlay.style, {
+    position: "fixed",
+    inset: "0",
+    zIndex: "100001",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "16px",
+    background: "rgba(5,10,20,.84)",
+    backdropFilter: "blur(6px)"
+  });
+
+  const modal = document.createElement("div");
+
+  Object.assign(modal.style, {
+    width: "100%",
+    maxWidth: "760px",
+    maxHeight: "92vh",
+    overflowY: "auto",
+    padding: "24px",
+    borderRadius: "16px",
+    border: "1px solid #354258",
+    background: "#171e29",
+    color: "#eef1f6",
+    boxShadow: "0 25px 80px rgba(0,0,0,.55)"
+  });
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  function closeProfile() {
+    overlay.remove();
+    document.removeEventListener("keydown", escapeHandler);
+  }
+
+  const escapeHandler = event => {
+    if (event.key === "Escape") closeProfile();
+  };
+
+  document.addEventListener("keydown", escapeHandler);
+
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) closeProfile();
+  });
+
+  const loading = makeText(
+    "div",
+    "loading",
+    "Загружаем профиль кандидата..."
+  );
+
+  loading.style.padding = "45px 10px";
+  loading.style.textAlign = "center";
+  modal.appendChild(loading);
+
+  runServer(
+    "getCandidateProfile",
+    [candidate.candidateId],
+
+    result => {
+      if (!result || !result.success || !result.candidate) {
+        modal.replaceChildren();
+        modal.appendChild(makeText(
+          "div",
+          "empty",
+          result?.message || "Не удалось загрузить профиль."
+        ));
+        return;
+      }
+
+      renderCandidateProfile(
+        modal,
+        result,
+        candidate,
+        closeProfile
+      );
+    },
+
+    error => {
+      modal.replaceChildren();
+      modal.appendChild(makeText(
+        "div",
+        "empty",
+        "Ошибка загрузки: " + (error?.message || error)
+      ));
+    }
+  );
+
+  return closeProfile;
+}
+
+
+function renderCandidateProfile(modal, data, originalCandidate, closeProfile) {
+  const candidate = data.candidate;
+
+  modal.replaceChildren();
+
+  // Шапка профиля.
+  const header = makeText("div", "", "");
+
+  Object.assign(header.style, {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: "15px",
+    marginBottom: "23px"
+  });
+
+  const titleBox = document.createElement("div");
+
+  titleBox.appendChild(makeText(
+    "div",
+    "eyebrow",
+    "STROY PODRYAD · ПРОФИЛЬ"
+  ));
+
+  const title = makeText(
+    "div",
+    "",
+    candidate.name || "Без ФИО"
+  );
+
+  Object.assign(title.style, {
+    fontSize: "22px",
+    fontWeight: "800",
+    overflowWrap: "anywhere"
+  });
+
+  titleBox.appendChild(title);
+
+  const closeButton = makeText("button", "", "×");
+
+  Object.assign(closeButton.style, {
+    border: "0",
+    background: "transparent",
+    color: "#9aa6b8",
+    fontSize: "30px",
+    cursor: "pointer"
+  });
+
+  closeButton.type = "button";
+  closeButton.addEventListener("click", closeProfile);
+
+  header.appendChild(titleBox);
+  header.appendChild(closeButton);
+  modal.appendChild(header);
+
+  // Статус.
+  const status = makeText(
+    "div",
+    "",
+    candidate.status || "Статус не указан"
+  );
+
+  Object.assign(status.style, {
+    display: "inline-flex",
+    padding: "7px 12px",
+    borderRadius: "8px",
+    background: "rgba(201,166,107,.13)",
+    border: "1px solid rgba(201,166,107,.3)",
+    color: "#d7c49b",
+    fontSize: "11px",
+    fontWeight: "800",
+    marginBottom: "20px"
+  });
+
+  modal.appendChild(status);
+
+  // Основная информация.
+  const grid = document.createElement("div");
+
+  Object.assign(grid.style, {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))",
+    gap: "10px",
+    marginBottom: "20px"
+  });
+
+  const fields = [
+    ["Телефон", candidate.phone],
+    ["Специальность", candidate.specialty],
+    ["Объект", candidate.object],
+    ["Источник", candidate.source],
+    ["Добавлен", candidate.added],
+    ["Назначенная встреча", candidate.meeting]
+  ];
+
+  fields.forEach(([label, value]) => {
+    const item = document.createElement("div");
+
+    Object.assign(item.style, {
+      padding: "13px",
+      borderRadius: "10px",
+      border: "1px solid #2a3444",
+      background: "#1c2533",
+      minWidth: "0"
+    });
+
+    const caption = makeText("div", "", label);
+
+    Object.assign(caption.style, {
+      color: "#9aa6b8",
+      fontSize: "10px",
+      marginBottom: "7px"
+    });
+
+    const content = makeText("div", "", value || "Не указано");
+
+    Object.assign(content.style, {
+      color: "#eef1f6",
+      fontSize: "12px",
+      fontWeight: "700",
+      overflowWrap: "anywhere"
+    });
+
+    item.appendChild(caption);
+    item.appendChild(content);
+    grid.appendChild(item);
+  });
+
+  modal.appendChild(grid);
+
+  // Комментарий.
+  const commentSection = document.createElement("div");
+
+  commentSection.style.marginBottom = "22px";
+
+  commentSection.appendChild(makeText(
+    "div",
+    "section-title",
+    "Комментарий"
+  ));
+
+  const comment = makeText(
+    "div",
+    "",
+    candidate.comment || "Комментариев пока нет."
+  );
+
+  Object.assign(comment.style, {
+    marginTop: "9px",
+    padding: "13px",
+    borderRadius: "9px",
+    background: "#1c2533",
+    border: "1px solid #2a3444",
+    color: "#cbd2dd",
+    fontSize: "12px",
+    whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere"
+  });
+
+  commentSection.appendChild(comment);
+  modal.appendChild(commentSection);
+
+  // Быстрые действия.
+  const actions = document.createElement("div");
+
+  Object.assign(actions.style, {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    marginBottom: "25px"
+  });
+
+  if (candidate.phone) {
+    const call = makeText(
+      "a",
+      "quick-btn call",
+      "☎ Позвонить"
+    );
+
+    call.href = "tel:" + normalizePhone(candidate.phone);
+    actions.appendChild(call);
+
+    const max = makeText(
+      "button",
+      "quick-btn max",
+      "✉ MAX · номер скопирован"
+    );
+
+    max.type = "button";
+
+    max.addEventListener("click", async () => {
+      window.open(
+        "https://web.max.ru/",
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+      await copyPhone(candidate.phone);
+    });
+
+    actions.appendChild(max);
+
+    const copy = makeText(
+      "button",
+      "quick-btn copy",
+      "▣ Копировать номер"
+    );
+
+    copy.type = "button";
+    copy.addEventListener("click", async () => {
+      if (await copyPhone(candidate.phone)) {
+        copy.textContent = "✓ Скопировано";
+      }
+    });
+
+    actions.appendChild(copy);
+  }
+
+  modal.appendChild(actions);
+
+  // Встречи.
+  modal.appendChild(makeText(
+    "div",
+    "section-title",
+    "История встреч"
+  ));
+
+  const meetings = Array.isArray(data.meetings)
+    ? data.meetings
+    : [];
+
+  if (!meetings.length) {
+    modal.appendChild(makeText(
+      "div",
+      "empty",
+      "Встреч пока нет."
+    ));
+  } else {
+    meetings.forEach(meeting => {
+      const item = document.createElement("div");
+
+      Object.assign(item.style, {
+        padding: "12px",
+        marginTop: "9px",
+        background: "#1c2533",
+        border: "1px solid #2a3444",
+        borderRadius: "9px"
+      });
+
+      item.appendChild(makeText(
+        "div",
+        "",
+        meeting.date || "Дата не указана"
+      ));
+
+      const meetingStatus = makeText(
+        "div",
+        "",
+        meeting.status || "Статус не указан"
+      );
+
+      meetingStatus.style.color = "#c9a66b";
+      meetingStatus.style.fontSize = "11px";
+      meetingStatus.style.marginTop = "5px";
+
+      item.appendChild(meetingStatus);
+
+      if (meeting.reason) {
+        item.appendChild(makeText(
+          "div",
+          "",
+          "Причина: " + meeting.reason
+        ));
+      }
+
+      modal.appendChild(item);
+    });
+  }
+
+  // История.
+  const historyTitle = makeText(
+    "div",
+    "section-title",
+    "История взаимодействий"
+  );
+
+  historyTitle.style.marginTop = "25px";
+  modal.appendChild(historyTitle);
+
+  const history = Array.isArray(data.history)
+    ? data.history
+    : [];
+
+  if (!history.length) {
+    modal.appendChild(makeText(
+      "div",
+      "empty",
+      "История пока пуста."
+    ));
+  } else {
+    history.forEach(entry => {
+      const item = document.createElement("div");
+
+      Object.assign(item.style, {
+        position: "relative",
+        padding: "13px 14px",
+        marginTop: "9px",
+        borderLeft: "2px solid #c9a66b",
+        borderRadius: "0 9px 9px 0",
+        background: "#1c2533"
+      });
+
+      const date = makeText(
+        "div",
+        "",
+        entry.date || "Дата не указана"
+      );
+
+      date.style.color = "#9aa6b8";
+      date.style.fontSize = "10px";
+
+      const action = makeText(
+        "div",
+        "",
+        entry.action || "Действие"
+      );
+
+      action.style.fontWeight = "800";
+      action.style.marginTop = "5px";
+
+      item.appendChild(date);
+      item.appendChild(action);
+
+      if (entry.oldValue || entry.newValue) {
+        item.appendChild(makeText(
+          "div",
+          "",
+          (entry.oldValue || "—") +
+          " → " +
+          (entry.newValue || "—")
+        ));
+      }
+
+      if (entry.comment) {
+        const note = makeText(
+          "div",
+          "",
+          entry.comment
+        );
+
+        note.style.color = "#cbd2dd";
+        note.style.fontSize = "12px";
+        note.style.marginTop = "7px";
+        note.style.whiteSpace = "pre-wrap";
+
+        item.appendChild(note);
+      }
+
+      modal.appendChild(item);
+    });
+  }
+
+  // Добавление заметки.
+  const noteSection = document.createElement("div");
+
+  noteSection.style.marginTop = "26px";
+
+  noteSection.appendChild(makeText(
+    "div",
+    "section-title",
+    "Добавить заметку"
+  ));
+
+  const textarea = document.createElement("textarea");
+
+  textarea.placeholder =
+    "Например: созвонились, готов приехать в пятницу...";
+
+  Object.assign(textarea.style, {
+    display: "block",
+    width: "100%",
+    minHeight: "95px",
+    marginTop: "10px",
+    padding: "12px",
+    resize: "vertical",
+    borderRadius: "9px",
+    border: "1px solid #354258",
+    background: "#121923",
+    color: "#eef1f6",
+    font: "inherit",
+    fontSize: "12px",
+    outline: "none"
+  });
+
+  const saveButton = makeText(
+    "button",
+    "primary-btn",
+    "Сохранить заметку"
+  );
+
+  saveButton.type = "button";
+  saveButton.style.marginTop = "10px";
+
+  saveButton.addEventListener("click", () => {
+    const note = textarea.value.trim();
+
+    if (!note) {
+      notifyWarning("Напиши текст заметки.", "Заметка");
+      textarea.focus();
+      return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Сохраняем...";
+
+    runServer(
+      "addCandidateNote",
+      [candidate.candidateId, note],
+
+      result => {
+        if (!result || !result.success) {
+          saveButton.disabled = false;
+          saveButton.textContent = "Сохранить заметку";
+
+          notifyError(
+            result?.message || "Не удалось сохранить заметку.",
+            "Заметка"
+          );
+
+          return;
+        }
+
+        notifySuccess("Заметка добавлена в историю.", "Профиль");
+
+        closeProfile();
+
+        const updatedCandidate = allCandidates.find(
+          item => item.candidateId === candidate.candidateId
+        ) || originalCandidate;
+
+        openCandidateProfile(updatedCandidate);
+      },
+
+      error => {
+        saveButton.disabled = false;
+        saveButton.textContent = "Сохранить заметку";
+
+        notifyError(
+          error?.message || String(error),
+          "Заметка"
+        );
+      }
+    );
+  });
+
+  noteSection.appendChild(textarea);
+  noteSection.appendChild(saveButton);
+  modal.appendChild(noteSection);
+}
+
 function makeMobileCandidate(candidate) {
   const card = makeText("div", "mobile-candidate", "");
 
   const top = makeText("div", "mobile-candidate-top", "");
-  top.appendChild(makeText(
-    "div",
-    "mobile-candidate-name",
-    candidate.name || "Без ФИО"
-  ));
+  top.appendChild(createCandidateNameButton(candidate));
   card.appendChild(top);
 
   const details = makeText(
@@ -2897,6 +3691,165 @@ function renderTodayCandidates() {
   });
 }
 
+
+function handleAnalyticsPeriodChange() {
+  const period = document.getElementById("analyticsPeriod").value;
+  const custom = period === "custom";
+
+  document.getElementById("analyticsDateStart").style.display =
+    custom ? "" : "none";
+
+  document.getElementById("analyticsDateEnd").style.display =
+    custom ? "" : "none";
+}
+
+function loadRecruitmentAnalytics() {
+  const period = document.getElementById("analyticsPeriod").value;
+
+  const filters = { period };
+
+  if (period === "custom") {
+    const start = document.getElementById("analyticsDateStart").value;
+    const end = document.getElementById("analyticsDateEnd").value;
+
+    if (!start || !end) {
+      showToast("Выберите обе даты периода", "warning");
+      return;
+    }
+
+    if (start > end) {
+      showToast("Начальная дата не может быть позже конечной", "warning");
+      return;
+    }
+
+    filters.startDate = start;
+    filters.endDate = end;
+  }
+
+  const content = document.getElementById("analyticsContent");
+  content.innerHTML = '<div class="loading">Загружаем аналитику...</div>';
+
+  runServer(
+    "getRecruitmentAnalytics",
+    [filters],
+    function(result) {
+      if (!result || !result.success) {
+        content.textContent = "Не удалось получить аналитику";
+        showToast("Ошибка загрузки аналитики", "error");
+        return;
+      }
+
+      renderRecruitmentAnalytics(result);
+    },
+    function(error) {
+      content.textContent =
+        error && error.message
+          ? error.message
+          : "Ошибка загрузки аналитики";
+
+      showToast("Не удалось загрузить аналитику", "error");
+    }
+  );
+}
+
+function renderRecruitmentAnalytics(data) {
+  const summary = data.summary || {};
+
+  document.getElementById("analyticsTotal").textContent =
+    summary.total ?? 0;
+
+  document.getElementById("analyticsArrived").textContent =
+    summary.arrived ?? 0;
+
+  document.getElementById("analyticsStarted").textContent =
+    summary.started ?? 0;
+
+  document.getElementById("analyticsMeetings").textContent =
+    summary.meetings ?? 0;
+
+  document.getElementById("analyticsArrivalConversion").textContent =
+    "Конверсия: " + (summary.arrivalConversion ?? 0) + "%";
+
+  document.getElementById("analyticsStartConversion").textContent =
+    "Конверсия: " + (summary.startConversion ?? 0) + "%";
+
+  document.getElementById("analyticsPeriodLabel").textContent =
+    "Период: " + data.dates.start + " — " + data.dates.end;
+
+  const content = document.getElementById("analyticsContent");
+
+  content.replaceChildren();
+
+  content.appendChild(
+    createAnalyticsBlock("Кандидаты по статусам", data.statuses)
+  );
+
+  content.appendChild(
+    createAnalyticsBlock("По специальностям", data.specialties)
+  );
+
+  content.appendChild(
+    createAnalyticsBlock("Источники привлечения", data.sources)
+  );
+
+  content.appendChild(
+    createAnalyticsBlock("Строительные объекты", data.objects)
+  );
+}
+
+function createAnalyticsBlock(title, items) {
+  const block = document.createElement("div");
+  block.className = "analytics-block";
+
+  const heading = document.createElement("div");
+  heading.className = "analytics-block-title";
+  heading.textContent = title;
+
+  block.appendChild(heading);
+
+  const list = document.createElement("div");
+  list.className = "analytics-list";
+
+  if (!items || !items.length) {
+    const empty = document.createElement("div");
+    empty.className = "analytics-empty";
+    empty.textContent = "Нет данных за выбранный период";
+    list.appendChild(empty);
+  } else {
+    const max = Math.max(...items.map(item => Number(item.count) || 0), 1);
+
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "analytics-row";
+
+      const name = document.createElement("div");
+      name.className = "analytics-name";
+      name.textContent = item.name || "Не указано";
+
+      const track = document.createElement("div");
+      track.className = "analytics-track";
+
+      const fill = document.createElement("div");
+      fill.className = "analytics-fill";
+      fill.style.width =
+        Math.max(0, Math.min(100, (Number(item.count) / max) * 100)) + "%";
+
+      track.appendChild(fill);
+
+      const value = document.createElement("div");
+      value.className = "analytics-value";
+      value.textContent = item.count ?? 0;
+
+      row.append(name, track, value);
+      list.appendChild(row);
+    });
+  }
+
+  block.appendChild(list);
+
+  return block;
+}
+
 function renderCandidates() {
   const search = document.getElementById("searchInput").value.trim().toLowerCase();
   const status = document.getElementById("statusFilter").value;
@@ -2943,7 +3896,7 @@ function renderCandidates() {
       const row = document.createElement("tr");
 
       const person = document.createElement("td");
-      person.appendChild(makeText("div", "candidate-name", candidate.name || "Без ФИО"));
+      person.appendChild(createCandidateNameButton(candidate));
       person.appendChild(createPhoneLink(candidate.phone));
       row.appendChild(person);
 
