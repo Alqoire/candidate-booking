@@ -1,0 +1,86 @@
+
+name: Send calendar button to MAX
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download certificate
+        run: |
+          curl --fail --silent --show-error --location \
+            https://gu-st.ru/content/Other/doc/russiantrustedca.pem \
+            -o russiantrustedca.pem
+          echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
+
+      - name: Send calendar message to MAX
+        env:
+          MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
+          MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
+
+        run: |
+          python3 - <<'PY'
+          import os
+          import ssl
+          import json
+          import urllib.request
+
+          context = ssl.create_default_context(
+              cafile="russiantrustedca.pem"
+          )
+
+          url = (
+              "https://platform-api2.max.ru/messages?chat_id="
+              + os.environ["MAX_CHAT_ID"]
+          )
+
+          payload = {
+              "text": (
+                  "📅 КАЛЕНДАРЬ КАНДИДАТОВ\n\n"
+                  "Откройте календарь встреч и посмотрите "
+                  "расписание кандидатов на объекте."
+              ),
+              "attachments": [
+                  {
+                      "type": "inline_keyboard",
+                      "payload": {
+                          "buttons": [
+                              [
+                                  {
+                                      "type": "open_app",
+                                      "text": "ОТКРЫТЬ",
+                                      "web_app": "se15121687_bot"
+                                  }
+                              ]
+                          ]
+                      }
+                  }
+              ]
+          }
+
+          data = json.dumps(
+              payload,
+              ensure_ascii=False
+          ).encode("utf-8")
+
+          request = urllib.request.Request(
+              url,
+              data=data,
+              method="POST",
+              headers={
+                  "Authorization": os.environ["MAX_BOT_TOKEN"],
+                  "Content-Type": "application/json"
+              }
+          )
+
+          with urllib.request.urlopen(
+              request,
+              context=context,
+              timeout=30
+          ) as response:
+              print("HTTP:", response.status)
+              print("Сообщение календаря отправлено!")
+          PY
