@@ -13,6 +13,7 @@ on:
           - rescheduled
           - cancelled
           - reminder_2h
+          - reminder_group
         default: new_candidate
 
       full_name:
@@ -155,13 +156,29 @@ jobs:
                   "и подтвердить его приезд."
               )
 
+          elif event == "reminder_group":
+              text = (
+                  "⏰ НАПОМИНАНИЕ: ГРУППА ВСТРЕЧ ЧЕРЕЗ 2 ЧАСА\n\n"
+                  f"Время встречи: {meeting or 'Не указано'}\n\n"
+                  f"{comment or 'Список кандидатов не указан'}\n\n"
+                  "Не забудьте подтвердить приезд кандидатов."
+              )
+
           else:
               raise ValueError("Неизвестный тип события: " + event)
 
-          if source and event not in ("new_candidate", "reminder_2h"):
+          if source and event not in (
+              "new_candidate",
+              "reminder_2h",
+              "reminder_group"
+          ):
               text += f"\nИсточник: {source}"
 
-          if comment and event not in ("new_candidate", "reminder_2h"):
+          if comment and event not in (
+              "new_candidate",
+              "reminder_2h",
+              "reminder_group"
+          ):
               text += f"\nКомментарий: {comment}"
 
           context = ssl.create_default_context(
