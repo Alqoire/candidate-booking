@@ -24,8 +24,8 @@ jobs:
         run: |
           python3 - <<'PY'
           import os
-          import ssl
           import json
+          import ssl
           import time
           import uuid
           import urllib.request
@@ -34,85 +34,119 @@ jobs:
           TOKEN = os.environ["MAX_BOT_TOKEN"]
           CHAT_ID = os.environ["MAX_CHAT_ID"]
 
-          IMAGE_URL = "https://i.ibb.co/S7PDHCz9/homeworkdirartifactspreview-1.jpg"
-
-          context = ssl.create_default_context(
+          api_context = ssl.create_default_context(
               cafile="russiantrustedca.pem"
           )
 
-          def request(url, data=None, headers=None, method=None):
+          def api_request(url, data=None, headers=None, context=api_context):
               req = urllib.request.Request(
                   url,
                   data=data,
                   headers=headers or {},
-                  method=method
+                  method="POST"
               )
               try:
                   with urllib.request.urlopen(
                       req, context=context, timeout=60
                   ) as response:
                       body = response.read().decode("utf-8")
-                      print("HTTP:", response.status)
-                      return json.loads(body) if body else {}
+                      return response.status, body
               except urllib.error.HTTPError as e:
-                  body = e.read().decode("utf-8", errors="replace")
-                  print("HTTP ERROR:", e.code, body)
-                  raise
+                  error_body = e.read().decode("utf-8", errors="replace")
+                  raise RuntimeError(
+                      f"HTTP {e.code}: {error_body}"
+                  )
 
+          # 1. Скачиваем фотографию
           print("1. Скачиваем фотографию...")
-          image_request = urllib.request.Request(IMAGE_URL)
-          with urllib.request.urlopen(
-              image_request, timeout=60
-          ) as response:
-              image_data = response.read()
 
-          if not image_data:
-              raise Exception("Фотография скачалась пустой")
-
-          print("Размер фото:", len(image_data), "байт")
-
-          print("2. Запрашиваем загрузку изображения в MAX...")
-          upload_info = request(
-              "https://platform-api2.max.ru/uploads?type=image",
-              headers={"Authorization": TOKEN},
-              method="POST"
+          photo_url = (
+              "https://i.ibb.co/S7PDHCz9/"
+              "homeworkdirartifactspreview-1.jpg"
           )
 
-          upload_url = upload_info["url"]
-          image_token = upload_info["token"]
+          with urllib.request.urlopen(photo_url, timeout=60) as response:
+              photo_data = response.read()
 
-          print("Токен изображения получен")
+          if not photo_data:
+              raise RuntimeError("Фотография скачалась пустой")
 
-          print("3. Загружаем JPG непосредственно в MAX...")
+          print("Размер фото:", len(photo_data), "байт")
+
+          # 2. Получаем адрес загрузки в MAX
+          print("2. Запрашиваем адрес загрузки в MAX...")
+
+          upload_api = (
+              "https://platform-api2.max.ru/uploads?type=image"
+          )
+
+          status, body = api_request(
+              upload_api,
+              headers={
+                  "Authorization": TOKEN,
+                  "Accept": "application/json"
+              }
+          )
+
+          upload_info = json.loads(body)
+          upload_url = upload_info.get("url")
+
+          if not upload_url:
+              raise RuntimeError(
+                  "MAX не вернул URL загрузки: " + body
+              )
+
+          print("Адрес загрузки получен!")
+
+          # 3. Загружаем сам файл
+          print("3. Загружаем фотографию на сервер MAX...")
+
           boundary = "----MAXUpload" + uuid.uuid4().hex
 
-          body = (
+          multipart_body = (
               f"--{boundary}\r\n"
-              'Content-Disposition: form-data; name="data"; filename="conditions.jpg"\r\n'
+              'Content-Disposition: form-data; name="data"; '
+              'filename="conditions.jpg"\r\n'
               "Content-Type: image/jpeg\r\n\r\n"
-          ).encode("utf-8") + image_data + (
+          ).encode("utf-8") + photo_data + (
               f"\r\n--{boundary}--\r\n"
           ).encode("utf-8")
 
-          request(
+          status, upload_body = api_request(
               upload_url,
-              data=body,
+              data=multipart_body,
               headers={
                   "Authorization": TOKEN,
                   "Content-Type": f"multipart/form-data; boundary={boundary}"
               },
-              method="POST"
+              context=ssl.create_default_context()
           )
 
-          print("Фото загружено. Ждём обработки...")
-          time.sleep(7)
+          upload_result = json.loads(upload_body)
 
-          print("4. Отправляем фото, текст и кнопку...")
-          payload = {
+          image_token = (
+              upload_result
+              .get("photos", {})
+              .get("photoIds", {})
+              .get("token")
+          )
+
+          if not image_token:
+              raise RuntimeError(
+                  "MAX не вернул токен изображения. Ответ: "
+                  + upload_body
+              )
+
+          print("Фотография успешно загружена!")
+
+          # 4. Формируем одно сообщение: фото + текст + кнопка
+          print("4. Отправляем сообщение в групповой чат...")
+
+          message_payload = {
               "text": (
                   "📅 КАЛЕНДАРЬ КАНДИДАТОВ\n\n"
-                  "Условия работы на строительном объекте "
-                  "и расписание встреч кандидатов."
+                  "Откройте календарь встреч и посмотрите "
+                  "расписание кандидатов на объекте."
               ),
               "attachments": [
                   {
@@ -138,35 +172,42 @@ jobs:
               ]
           }
 
-          message_url = (
+          message_data = json.dumps(
+              message_payload,
+              ensure_ascii=False
+          ).encode("utf-8")
+
+          message_api = (
               "https://platform-api2.max.ru/messages?chat_id="
               + CHAT_ID
           )
 
-          for attempt in range(1, 5):
+          # MAX может обрабатывать фотографию несколько секунд.
+          # При ошибке готовности повторяем отправку.
+          for attempt in range(4):
               try:
-                  result = request(
-                      message_url,
-                      data=json.dumps(
-                          payload, ensure_ascii=False
-                      ).encode("utf-8"),
+                  status, result = api_request(
+                      message_api,
+                      data=message_data,
                       headers={
                           "Authorization": TOKEN,
                           "Content-Type": "application/json"
-                      },
-                      method="POST"
+                      }
                   )
 
-                  print("УСПЕХ! Ответ MAX:")
-                  print(json.dumps(result, ensure_ascii=False, indent=2))
+                  print("HTTP:", status)
+                  print("Сообщение с фотографией и кнопкой отправлено!")
+                  print("Ответ MAX:", result[:500])
                   break
 
-              except urllib.error.HTTPError as e:
-                  error = e.read().decode("utf-8", errors="replace")
-                  print("Попытка", attempt, "не удалась:", error)
-
-                  if attempt == 4 or "attachment.not.ready" not in error:
+              except RuntimeError as error:
+                  if "attachment.not.ready" in str(error) and attempt < 3:
+                      wait = 3 * (attempt + 1)
+                      print(
+                          f"Фотография ещё обрабатывается. "
+                          f"Повтор через {wait} сек..."
+                      )
+                      time.sleep(wait)
+                  else:
                       raise
-
-                  time.sleep(attempt * 5)
           PY
