@@ -1,5 +1,5 @@
 
-name: Send calendar button to MAX
+name: Send calendar photo with button to MAX
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
             -o russiantrustedca.pem
           echo "6d1b66e7c1aa2512ad3abb50d6a6f144c9ee9d80fd7fbe1c9255a39f8e790944  russiantrustedca.pem" | sha256sum --check -
 
-      - name: Send calendar message to MAX
+      - name: Upload photo and send message
         env:
           MAX_BOT_TOKEN: ${{ secrets.MAX_BOT_TOKEN }}
           MAX_CHAT_ID: ${{ secrets.MAX_CHAT_ID }}
@@ -26,24 +26,101 @@ jobs:
           import os
           import ssl
           import json
+          import time
+          import uuid
           import urllib.request
+          import urllib.error
+
+          TOKEN = os.environ["MAX_BOT_TOKEN"]
+          CHAT_ID = os.environ["MAX_CHAT_ID"]
+
+          IMAGE_URL = "https://i.ibb.co/S7PDHCz9/homeworkdirartifactspreview-1.jpg"
 
           context = ssl.create_default_context(
               cafile="russiantrustedca.pem"
           )
 
-          url = (
-              "https://platform-api2.max.ru/messages?chat_id="
-              + os.environ["MAX_CHAT_ID"]
+          def request(url, data=None, headers=None, method=None):
+              req = urllib.request.Request(
+                  url,
+                  data=data,
+                  headers=headers or {},
+                  method=method
+              )
+              try:
+                  with urllib.request.urlopen(
+                      req, context=context, timeout=60
+                  ) as response:
+                      body = response.read().decode("utf-8")
+                      print("HTTP:", response.status)
+                      return json.loads(body) if body else {}
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", errors="replace")
+                  print("HTTP ERROR:", e.code, body)
+                  raise
+
+          print("1. Скачиваем фотографию...")
+          image_request = urllib.request.Request(IMAGE_URL)
+          with urllib.request.urlopen(
+              image_request, timeout=60
+          ) as response:
+              image_data = response.read()
+
+          if not image_data:
+              raise Exception("Фотография скачалась пустой")
+
+          print("Размер фото:", len(image_data), "байт")
+
+          print("2. Запрашиваем загрузку изображения в MAX...")
+          upload_info = request(
+              "https://platform-api2.max.ru/uploads?type=image",
+              headers={"Authorization": TOKEN},
+              method="POST"
           )
 
+          upload_url = upload_info["url"]
+          image_token = upload_info["token"]
+
+          print("Токен изображения получен")
+
+          print("3. Загружаем JPG непосредственно в MAX...")
+          boundary = "----MAXUpload" + uuid.uuid4().hex
+
+          body = (
+              f"--{boundary}\r\n"
+              'Content-Disposition: form-data; name="data"; filename="conditions.jpg"\r\n'
+              "Content-Type: image/jpeg\r\n\r\n"
+          ).encode("utf-8") + image_data + (
+              f"\r\n--{boundary}--\r\n"
+          ).encode("utf-8")
+
+          request(
+              upload_url,
+              data=body,
+              headers={
+                  "Authorization": TOKEN,
+                  "Content-Type": f"multipart/form-data; boundary={boundary}"
+              },
+              method="POST"
+          )
+
+          print("Фото загружено. Ждём обработки...")
+          time.sleep(7)
+
+          print("4. Отправляем фото, текст и кнопку...")
           payload = {
               "text": (
                   "📅 КАЛЕНДАРЬ КАНДИДАТОВ\n\n"
-                  "Откройте календарь встреч и посмотрите "
-                  "расписание кандидатов на объекте."
+                  "Условия работы на строительном объекте "
+                  "и расписание встреч кандидатов."
               ),
               "attachments": [
+                  {
+                      "type": "image",
+                      "payload": {
+                          "token": image_token
+                      }
+                  },
                   {
                       "type": "inline_keyboard",
                       "payload": {
@@ -61,26 +138,35 @@ jobs:
               ]
           }
 
-          data = json.dumps(
-              payload,
-              ensure_ascii=False
-          ).encode("utf-8")
-
-          request = urllib.request.Request(
-              url,
-              data=data,
-              method="POST",
-              headers={
-                  "Authorization": os.environ["MAX_BOT_TOKEN"],
-                  "Content-Type": "application/json"
-              }
+          message_url = (
+              "https://platform-api2.max.ru/messages?chat_id="
+              + CHAT_ID
           )
 
-          with urllib.request.urlopen(
-              request,
-              context=context,
-              timeout=30
-          ) as response:
-              print("HTTP:", response.status)
-              print("Сообщение календаря отправлено!")
+          for attempt in range(1, 5):
+              try:
+                  result = request(
+                      message_url,
+                      data=json.dumps(
+                          payload, ensure_ascii=False
+                      ).encode("utf-8"),
+                      headers={
+                          "Authorization": TOKEN,
+                          "Content-Type": "application/json"
+                      },
+                      method="POST"
+                  )
+
+                  print("УСПЕХ! Ответ MAX:")
+                  print(json.dumps(result, ensure_ascii=False, indent=2))
+                  break
+
+              except urllib.error.HTTPError as e:
+                  error = e.read().decode("utf-8", errors="replace")
+                  print("Попытка", attempt, "не удалась:", error)
+
+                  if attempt == 4 or "attachment.not.ready" not in error:
+                      raise
+
+                  time.sleep(attempt * 5)
           PY
