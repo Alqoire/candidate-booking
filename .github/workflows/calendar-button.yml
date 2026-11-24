@@ -98,7 +98,7 @@ jobs:
 
           print("Адрес загрузки получен!")
 
-          # 3. Загружаем сам файл
+          # 3. Загружаем фотографию
           print("3. Загружаем фотографию на сервер MAX...")
 
           boundary = "----MAXUpload" + uuid.uuid4().hex
@@ -123,23 +123,23 @@ jobs:
           )
 
           upload_result = json.loads(upload_body)
+          photos = upload_result.get("photos", {})
 
-          image_token = (
-              upload_result
-              .get("photos", {})
-              .get("photoIds", {})
-              .get("token")
-          )
+          if not photos:
+              raise RuntimeError(
+                  "MAX не вернул фотографии: " + upload_body
+              )
+
+          image_token = next(iter(photos.values())).get("token")
 
           if not image_token:
               raise RuntimeError(
-                  "MAX не вернул токен изображения. Ответ: "
-                  + upload_body
+                  "В ответе MAX отсутствует токен: " + upload_body
               )
 
           print("Фотография успешно загружена!")
 
-          # 4. Формируем одно сообщение: фото + текст + кнопка
+          # 4. Формируем сообщение: фото + текст + кнопка
           print("4. Отправляем сообщение в групповой чат...")
 
           message_payload = {
@@ -182,8 +182,7 @@ jobs:
               + CHAT_ID
           )
 
-          # MAX может обрабатывать фотографию несколько секунд.
-          # При ошибке готовности повторяем отправку.
+          # 5. Отправляем с повтором при неготовности изображения
           for attempt in range(4):
               try:
                   status, result = api_request(
