@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STROY PODRYAD — Прораб</title>
+
+  <style>
+    :root {
+      --bg: #101216;
+      --panel: #191d24;
+      --panel2: #202630;
+      --border: #2b323d;
+      --text: #f2f4f7;
+      --muted: #929ba8;
+      --accent: #e5a43b;
+      --green: #4caf83;
+      --red: #e46b6b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .today-label {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      padding: 10px 15px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .summary-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 19px;
+      border-radius: 14px;
+    }
+
+    .summary-number {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .date-picker {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .meeting-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .meeting-card {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .meeting-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .specialty {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .time {
+      font-size: 17px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .person-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 9px;
+      overflow-wrap: anywhere;
+    }
+
+    .phone {
+      color: var(--green);
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .comment {
+      border-top: 1px solid var(--border);
+      padding-top: 11px;
+      color: #c0c7d1;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .comment-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 35px 10px;
+      grid-column: 1 / -1;
+    }
+
+    .loader {
+      color: var(--muted);
+      text-align: center;
+      padding: 30px;
+    }
+
+    .refresh {
+      background: var(--accent);
+      color: #171717;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .refresh:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 10px;
+    }
+
+    @media (max-width: 650px) {
+      .container { padding: 15px; }
+      .meeting-list { grid-template-columns: 1fr; }
+      .section { padding: 15px; }
+      .summary-number { font-size: 26px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <header>
+      <div>
+        <div class="logo">STROY <span>PODRYAD</span></div>
+        <div class="subtitle">Расписание приездов на объект</div>
+      </div>
+
+      <div class="today-label" id="todayLabel">Загрузка...</div>
+    </header>
+
+    <div class="summary">
+      <div class="summary-card">
+        <div class="summary-number" id="peopleCount">—</div>
+        <div class="summary-label">Ожидается на выбранную дату</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-number" id="selectedDateLabel">—</div>
+        <div class="summary-label">Выбранная дата</div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>Календарь приездов</h2>
+        <input
+          type="date"
+          class="date-picker"
+          id="datePicker"
+          onchange="loadSchedule()"
+        >
+      </div>
+
+      <div class="section-heading">
+        <h2 id="listTitle">Ожидаемые кандидаты</h2>
+        <button class="refresh" id="refreshButton" onclick="loadSchedule()">
+          Обновить
+        </button>
+      </div>
+
+      <div class="meeting-list" id="meetingList">
+        <div class="loader">Загружаем расписание...</div>
+      </div>
+    </section>
+
+    <div class="footer">
+      STROY PODRYAD · Информация для просмотра
+    </div>
+
+  </div>
+
+  <script>
+    const datePicker = document.getElementById("datePicker");
+
+    function localDateString(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDate(dateString) {
+      const parts = dateString.split("-");
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function loadSchedule() {
+      const date = datePicker.value;
+      if (!date) return;
+
+      const list = document.getElementById("meetingList");
+      const button = document.getElementById("refreshButton");
+
+      list.innerHTML = '<div class="loader">Загружаем расписание...</div>';
+      button.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(renderSchedule)
+        .withFailureHandler(showError)
+        .getForemanSchedule(date);
+    }
+
+    function renderSchedule(result) {
+      document.getElementById("refreshButton").disabled = false;
+
+      if (!result || !result.success) {
+        showError({ message: "Не удалось получить расписание" });
+        return;
+      }
+
+      document.getElementById("peopleCount").textContent = result.count;
+      document.getElementById("selectedDateLabel").textContent =
+        formatDate(result.date);
+
+      document.getElementById("listTitle").textContent =
+        "Ожидаемые кандидаты · " + formatDate(result.date);
+
+      const list = document.getElementById("meetingList");
+
+      if (!result.meetings.length) {
+        list.innerHTML =
+          '<div class="empty">На выбранную дату встреч нет</div>';
+        return;
+      }
+
+      list.innerHTML = result.meetings.map(person => `
+        <article class="meeting-card">
+          <div class="meeting-top">
+            <div class="specialty">
+              ${escapeHtml(person.specialty || "Специальность не указана")}
+            </div>
+            <div class="time">${escapeHtml(person.time)}</div>
+          </div>
+
+          <div class="person-name">${escapeHtml(person.name)}</div>
+
+          <a class="phone"
+             href="tel:${escapeHtml(person.phone)}">
+            ${escapeHtml(person.phone)}
+          </a>
+
+          <div class="comment">
+            <span class="comment-label">Комментарий рекрутера</span>
+            ${person.comment
+              ? escapeHtml(person.comment)
+              : "Комментарий отсутствует"}
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function showError(error) {
+      document.getElementById("refreshButton").disabled = false;
+      document.getElementById("meetingList").innerHTML =
+        '<div class="empty">Ошибка загрузки расписания: ' +
+        escapeHtml(error && error.message ? error.message : "Неизвестная ошибка") +
+        '</div>';
+    }
+
+    const today = localDateString(new Date());
+
+    datePicker.value = today;
+    document.getElementById("todayLabel").textContent =
+      "Сегодня: " + formatDate(today);
+
+    loadSchedule();
+  </script>
+</body>
+</html>
