@@ -1814,11 +1814,80 @@ function rescheduleMeeting(meetingId, newDate, newTime, reason) {
  * GitHub workflow_dispatch не принимает пустые строки в inputs → HTTP 422.
  * Все значения нормализуем: trim + fallback, без "".
  */
-function sanitizeWorkflowInput_(value, fallback) {
+
+function sanitizeWorkflowInput_(value, fallback, maxLength) {
   const text = String(value == null ? "" : value).trim();
   if (!text) return fallback || "-";
-  return text.length > 500 ? text.substring(0, 500) : text;
+
+  const limit = Number(maxLength) || 500;
+  return text.length > limit
+    ? text.substring(0, limit)
+    : text;
 }
+
+function sendMeetingNotificationToGitHub_(eventType, candidate) {
+  const token = PropertiesService.getScriptProperties()
+    .getProperty("GITHUB_ACTIONS_TOKEN");
+
+  if (!token) {
+    throw new Error("Не найден GITHUB_ACTIONS_TOKEN.");
+  }
+
+  candidate = candidate || {};
+
+  const url =
+    "https://api.github.com/repos/Alqoire/candidate-booking/actions/workflows/notify-max.yml/dispatches";
+
+  const payload = {
+    ref: "main",
+    inputs: {
+      event_type: sanitizeWorkflowInput_(eventType, "unknown"),
+      full_name: sanitizeWorkflowInput_(candidate.name, "Без ФИО"),
+      phone: sanitizeWorkflowInput_(candidate.phone, "-"),
+      specialty: sanitizeWorkflowInput_(candidate.specialty, "-"),
+      meeting: sanitizeWorkflowInput_(candidate.meeting, "-"),
+      old_meeting: sanitizeWorkflowInput_(candidate.oldMeeting, "-"),
+      reason: sanitizeWorkflowInput_(candidate.reason, "-"),
+      source: sanitizeWorkflowInput_(candidate.source, "-"),
+      comment: sanitizeWorkflowInput_(candidate.comment, "-", 4000),
+      site_name: sanitizeWorkflowInput_(candidate.object, "Не указан")
+    }
+  };
+
+  Logger.log("Отправка уведомления в GitHub.");
+  Logger.log("Тип события: " + eventType);
+  Logger.log("Кандидат: " + candidate.name);
+  Logger.log("Встреча: " + candidate.meeting);
+
+  const response = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    headers: {
+      Authorization: "Bearer " + token,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const status = response.getResponseCode();
+  const responseText = response.getContentText();
+
+  Logger.log("GitHub HTTP: " + status);
+  Logger.log("Ответ GitHub: " + responseText);
+
+  if (status !== 204) {
+    throw new Error(
+      "GitHub вернул HTTP " + status + ": " + responseText
+    );
+  }
+
+  Logger.log("GitHub принял запрос на уведомление.");
+
+  return true;
+}
+
 
 function sendMeetingNotificationToGitHub_(eventType, candidate) {
   const token = PropertiesService.getScriptProperties()
@@ -2175,22 +2244,33 @@ function cancelMeeting(meetingId, reason) {
  * Проверка встреч каждые 5 минут.
  */
 
+
+
+/**
+ * АВТОМАТИЧЕСКИЕ ГРУППОВЫЕ НАПОМИНАНИЯ В MAX ЗА 2 ЧАСА
+ * Проверка встреч каждые 5 минут.
+ * Все кандидаты с одинаковой датой и временем — в одном сообщении.
+ */
+
 function sendTwoHourReminders() {
   const lock = LockService.getScriptLock();
 
-  // Защита от параллельного выполнения
   if (!lock.tryLock(1000)) return;
 
   try {
-    const ss = SpreadsheetApp.openById(
-      PropertiesService.getScriptProperties().getProperty("CANDIDATE_SHEET_ID")
-    );
+    const properties = PropertiesService.getScriptProperties();
+    const spreadsheetId = properties.getProperty("CANDIDATE_SHEET_ID");
 
+    if (!spreadsheetId) {
+      throw new Error("Не найден ID рабочей таблицы.");
+    }
+
+    const ss = SpreadsheetApp.openById(spreadsheetId);
     const meetingsSheet = ss.getSheetByName("Встречи");
     const candidatesSheet = ss.getSheetByName("Кандидаты");
 
     if (!meetingsSheet || !candidatesSheet) {
-      throw new Error("Не найден лист Встречи или Кандидаты");
+      throw new Error("Не найден лист Встречи или Кандидаты.");
     }
 
     const meetings = meetingsSheet.getDataRange().getValues();
@@ -2200,17 +2280,30 @@ function sendTwoHourReminders() {
 
     const now = Date.now();
     const twoHours = 2 * 60 * 60 * 1000;
-    const properties = PropertiesService.getScriptProperties();
 
-    // Индекс кандидатов по ID из колонки I
+    // Индекс кандидатов по ID из колонки I.
     const candidatesById = {};
 
     for (let i = 1; i < candidates.length; i++) {
       const candidateId = String(candidates[i][8] || "").trim();
+
       if (candidateId) {
         candidatesById[candidateId] = candidates[i];
       }
     }
+
+    // Статусы, для которых напоминания не отправляются.
+    const skippedStatuses = [
+      "Приехал на объект",
+      "На испытательном сроке",
+      "Работает",
+      "Отказ",
+      "Не приехал",
+      "Не прошёл испытательный срок"
+    ];
+
+    // Группировка по точной дате и времени встречи.
+    const groups = {};
 
     for (let i = 1; i < meetings.length; i++) {
       const row = meetings[i];
@@ -2222,30 +2315,18 @@ function sendTwoHourReminders() {
 
       if (!meetingId || !candidateId || !meetingDate) continue;
 
-      // Напоминаем только о действующих встречах
       if (!["Запланирована", "Перенесена"].includes(meetingStatus)) {
         continue;
       }
 
       const candidateRow = candidatesById[candidateId];
+
       if (!candidateRow) continue;
 
       const candidateStatus = String(candidateRow[6] || "").trim();
 
-      // Не отправляем напоминания тем, кто уже приехал,
-      // работает, отказался или не явился
-      const skippedStatuses = [
-        "Приехал на объект",
-        "На испытательном сроке",
-        "Работает",
-        "Отказ",
-        "Не приехал",
-        "Не прошёл испытательный срок"
-      ];
-
       if (skippedStatuses.includes(candidateStatus)) continue;
 
-      // Получаем время встречи
       let meetingTime;
 
       if (meetingDate instanceof Date) {
@@ -2258,51 +2339,92 @@ function sendTwoHourReminders() {
 
       const timeLeft = meetingTime - now;
 
-      // Встреча должна быть в ближайшие 2 часа,
-      // но ещё не должна начаться
+      // Берём только встречи в ближайшие два часа.
       if (timeLeft <= 0 || timeLeft > twoHours) continue;
 
-      // Уникальный ключ: ID встречи + конкретное время
-      // При переносе на другое время появится новый ключ
+      // Уникальный ключ каждой встречи для защиты от повторов.
       const reminderKey =
         "REMINDER_2H_" + meetingId + "_" + meetingTime;
 
       if (properties.getProperty(reminderKey)) continue;
 
-      const candidate = {
-        name: candidateRow[1],
-        full_name: candidateRow[1],
-        phone: candidateRow[2],
-        specialty: candidateRow[3],
-        meeting: Utilities.formatDate(
-          new Date(meetingTime),
-          MOSCOW_TZ,
-          "dd.MM.yyyy HH:mm"
-        ),
-        source: candidateRow[7] || "",
-        comment: candidateRow[5] || "",
-        object: candidateRow[9] || "Не указан"
-      };
+      // Все встречи с одинаковым timestamp попадают в одну группу.
+      const groupKey = String(meetingTime);
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
+          meetingTime: meetingTime,
+          candidates: []
+        };
+      }
+
+      groups[groupKey].candidates.push({
+        meetingId: meetingId,
+        reminderKey: reminderKey,
+        name: String(candidateRow[1] || "Без имени"),
+        phone: String(candidateRow[2] || "-"),
+        specialty: String(candidateRow[3] || "-"),
+        object: String(candidateRow[9] || "Не указан")
+      });
+    }
+
+    // Отправляем одно уведомление на каждое время встречи.
+    const groupKeys = Object.keys(groups).sort(
+      (a, b) => Number(a) - Number(b)
+    );
+
+    groupKeys.forEach(function(groupKey) {
+      const group = groups[groupKey];
+
+      const meetingText = Utilities.formatDate(
+        new Date(group.meetingTime),
+        MOSCOW_TZ,
+        "dd.MM.yyyy HH:mm"
+      );
+
+      const candidateList = group.candidates.map(
+        function(candidate, index) {
+          return (
+            (index + 1) + ". " + candidate.name +
+            "\n   Специальность: " + candidate.specialty +
+            "\n   Телефон: " + candidate.phone 
+          );
+        }
+      ).join("\n\n");
 
       try {
-        // Используем уже существующую отправку в GitHub Actions
-        sendMeetingNotificationToGitHub_("reminder_2h", candidate);
+        // Отправляем одну общую заявку в GitHub.
+        sendMeetingNotificationToGitHub_("reminder_group", {
+          name: "Групповое напоминание",
+          phone: "-",
+          specialty: "Несколько кандидатов",
+          meeting: meetingText,
+          source: "",
+          comment: candidateList,
+          object: "Несколько кандидатов"
+        });
 
-        // Запоминаем отправку только после успешного вызова
-        properties.setProperty(reminderKey, new Date().toISOString());
+        // Отмечаем каждую встречу только после успешной отправки.
+        group.candidates.forEach(function(candidate) {
+          properties.setProperty(
+            candidate.reminderKey,
+            new Date().toISOString()
+          );
+        });
 
         Logger.log(
-          "Напоминание отправлено: " +
-          candidate.name + " — " + candidate.meeting
+          "Групповое напоминание отправлено. " +
+          "Кандидатов: " + group.candidates.length +
+          ". Время: " + meetingText
         );
 
       } catch (error) {
         Logger.log(
-          "Ошибка отправки напоминания для " +
-          candidate.name + ": " + error.message
+          "Ошибка группового напоминания на " +
+          meetingText + ": " + error.message
         );
       }
-    }
+    });
 
   } finally {
     lock.releaseLock();
