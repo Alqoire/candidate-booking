@@ -356,44 +356,65 @@ function createCandidate(data) {
       Logger.log("Ошибка автоматической сортировки: " + sortError);
     }
 
-    // Уведомление в MAX через GitHub Actions.
-    let notificationSent = false;
-    let notificationMessage = "";
+// Уведомление в MAX через GitHub Actions.
+let notificationSent = false;
+let notificationSkipped = false;
+let notificationMessage = "";
 
-    try {
-      sendCandidateToGitHub_({
-        candidateId: candidateId,
-        name: name,
-        phone: phone,
-        specialty: specialty,
-        meeting: Utilities.formatDate(
-          start,
-          MOSCOW_TZ,
-          "dd.MM.yyyy HH:mm"
-        ),
-        source: source,
-        comment: comment || "Нет",
-        object: objectName
-      });
+const hasNotificationOption =
+  data.notifyMaxOption === "form";
 
-      notificationSent = true;
-      notificationMessage = " Уведомление отправлено в MAX.";
+const sendMaxNotification =
+  hasNotificationOption
+    ? data.notifyMax === "true"
+    : true;
 
-    } catch (notificationError) {
-      Logger.log("Ошибка уведомления MAX: " + notificationError);
+if (!sendMaxNotification) {
+  notificationSkipped = true;
+  notificationMessage =
+    " Уведомление в MAX отключено для этого кандидата.";
 
-      notificationMessage =
-        " Кандидат записан, но уведомление MAX не отправлено.";
-    }
-
-    return {
-      success: true,
-      notificationSent: notificationSent,
+} else {
+  try {
+    sendCandidateToGitHub_({
       candidateId: candidateId,
-      meetingId: meetingId,
-      message: "Кандидат успешно добавлен!" + notificationMessage
-    };
+      name: name,
+      phone: phone,
+      specialty: specialty,
+      meeting: Utilities.formatDate(
+        start,
+        MOSCOW_TZ,
+        "dd.MM.yyyy HH:mm"
+      ),
+      source: source,
+      comment: comment || "Нет",
+      object: objectName
+    });
 
+    notificationSent = true;
+    notificationMessage =
+      " GitHub принял запрос на отправку уведомления в MAX.";
+
+  } catch (notificationError) {
+    Logger.log(
+      "Ошибка уведомления MAX: " + notificationError
+    );
+
+    notificationMessage =
+      " Кандидат записан, но запрос на уведомление MAX не удалось отправить.";
+  }
+}
+
+return {
+  success: true,
+  notificationSent: notificationSent,
+  notificationSkipped: notificationSkipped,
+  candidateId: candidateId,
+  meetingId: meetingId,
+  message:
+    "Кандидат успешно добавлен!" +
+    notificationMessage
+};
   } catch (error) {
 
     // Откат записей при критической ошибке.
