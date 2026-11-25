@@ -338,6 +338,13 @@
       border:1px solid rgba(223,146,146,.2);
     }
 
+    .message.warning {
+  display: block;
+  color: #e6bd79;
+  background: rgba(230,189,121,.08);
+  border: 1px solid rgba(230,189,121,.22);
+}
+
     .count-label { color:var(--muted);font-size:11px;padding:0 20px 15px; }
 
     .mobile-candidates { display:none;padding:12px;gap:10px; }
@@ -2506,7 +2513,175 @@
   }
 }
 
-</style>
+
+/* ===== ВОРОНКА ===== */
+.pipeline-board {
+  display: flex;
+  gap: 8px;
+  overflow-x: hidden;
+  padding: 12px;
+  align-items: stretch;
+  min-height: 480px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.pipeline-col {
+  flex: 1 1 0;
+  min-width: 0;
+  background: #101722;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  max-height: 72vh;
+}
+.pipeline-col-head {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px 12px 0 0;
+  min-height: 42px;
+}
+.pipeline-col-title {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.pipeline-col-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 20px;
+  background: rgba(212,176,122,0.12);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pipeline-col-body {
+  padding: 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 50px;
+}
+.pipeline-card {
+  background: linear-gradient(160deg, #1a2330 0%, #141c28 100%);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px;
+  cursor: grab;
+}
+.pipeline-card:hover {
+  border-color: rgba(212,176,122,0.35);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+.pipeline-card.dragging { opacity: .45; }
+.pipeline-card-name {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+}
+.pipeline-card-meta {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pipeline-card-phone {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: #a9d7b7;
+  text-decoration: none;
+  font-weight: 600;
+}
+.pipeline-col.drag-over {
+  border-color: rgba(212,176,122,0.5);
+  background: rgba(212,176,122,0.05);
+}
+.pipeline-col[data-status="Отказ"] .pipeline-col-head,
+.pipeline-col[data-status="Не приехал"] .pipeline-col-head,
+.pipeline-col[data-status="Не прошёл испытательный срок"] .pipeline-col-head {
+  background: rgba(209,122,122,0.08);
+}
+.pipeline-col[data-status="Работает"] .pipeline-col-head {
+  background: rgba(92,186,154,0.1);
+}
+.pipeline-col[data-status="Приехал на объект"] .pipeline-col-head {
+  background: rgba(122,163,199,0.1);
+}
+@media (max-width: 1100px) {
+  .pipeline-board { overflow-x: auto; }
+  .pipeline-col { flex: 0 0 140px; }
+}
+
+/* ===== ОБЪЕКТЫ ===== */
+.objects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  padding: 18px;
+}
+.object-card {
+  background: linear-gradient(160deg, #1a2330 0%, #151d29 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.object-card:hover {
+  border-color: rgba(212,176,122,0.3);
+  transform: translateY(-2px);
+}
+.object-card-name {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.object-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.object-stat {
+  background: rgba(0,0,0,0.22);
+  border: 1px solid rgba(42,53,72,0.7);
+  border-radius: 10px;
+  padding: 11px;
+}
+.object-stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+.object-stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+  font-weight: 600;
+}
+@media (max-width: 700px) {
+  .objects-grid { grid-template-columns: 1fr; padding: 12px; }
+}
+
+  </style>
 </head>
 
 <body>
@@ -2529,6 +2704,12 @@
       </button>
       <button class="nav-btn" data-page="candidates">
         <span class="nav-icon">♙</span><span>Кандидаты</span>
+      </button>
+      <button class="nav-btn" data-page="pipeline">
+        <span class="nav-icon">☰</span><span>Воронка</span>
+      </button>
+      <button class="nav-btn" data-page="objects">
+        <span class="nav-icon">⌂</span><span>Объекты</span>
       </button>
       <button class="nav-btn" data-page="calendar">
   <span class="nav-icon">▦</span><span>Календарь</span>
@@ -2703,8 +2884,8 @@
       </div>
 
       <div class="calendar-view-switch">
-        <button class="calendar-view-btn active" data-view="month" onclick="setCalendarView('month')">Месяц</button>
-        <button class="calendar-view-btn" data-view="week" onclick="setCalendarView('week')">Неделя</button>
+        <button class="calendar-view-btn" data-view="month" onclick="setCalendarView('month')">Месяц</button>
+        <button class="calendar-view-btn active" data-view="week" onclick="setCalendarView('week')">Неделя</button>
         <button class="calendar-view-btn" data-view="day" onclick="setCalendarView('day')">День</button>
       </div>
     </div>
@@ -2797,6 +2978,43 @@
 
 </section>
 
+    
+<section class="page" id="page-pipeline">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">СТАТУСЫ</div>
+      <h1>Воронка</h1>
+      <div class="top-date">Перетащи карточку — статус обновится в таблице</div>
+    </div>
+    <div class="top-right">
+      <button class="secondary-btn" type="button" onclick="loadCandidates()">↻ Обновить</button>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="pipeline-board" id="pipelineBoard">
+      <div class="loading">Загружаем воронку...</div>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="page-objects">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">ОБЪЕКТЫ</div>
+      <h1>Строительные объекты</h1>
+      <div class="top-date">Сводка по кандидатам на каждом объекте</div>
+    </div>
+    <div class="top-right">
+      <button class="secondary-btn" type="button" onclick="renderObjects()">↻ Обновить</button>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="objects-grid" id="objectsGrid">
+      <div class="loading">Загружаем объекты...</div>
+    </div>
+  </div>
+</section>
+
     <section class="page" id="page-add">
       <div class="form-layout">
         <div class="form-panel">
@@ -2877,6 +3095,27 @@
               </div>
             </div>
 
+           <div class="field full" style="margin-top:4px;">
+  <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+
+    <input type="hidden" name="notifyMaxOption" value="form">
+
+    <input
+      type="checkbox"
+      id="notifyMax"
+      name="notifyMax"
+      value="true"
+      checked
+      style="width:17px;height:17px;accent-color:#c9a66b;"
+    >
+    <span>Отправить уведомление в MAX</span>
+  </label>
+  <div class="field-hint" style="margin-top:6px;">
+    Если отключить, кандидат сохранится и встреча создастся,
+    но уведомление в MAX отправлено не будет.
+  </div>
+</div>
+
             <div class="form-actions">
               <button class="primary-btn" id="submitButton" type="submit">Добавить кандидата и создать встречу</button>
               <button class="secondary-btn" type="reset">Очистить форму</button>
@@ -2924,7 +3163,7 @@ let isLoadingCandidates = false;
 let isSubmittingCandidate = false;
 
 let calendarDate = new Date();
-let calendarView = (window.matchMedia && window.matchMedia("(max-width: 700px)").matches) ? "day" : "month";
+let calendarView = (window.matchMedia && window.matchMedia("(max-width: 700px)").matches) ? "day" : "week";
 let calendarMeetings = [];
 let isLoadingCalendar = false;
 let calendarRequestNumber = 0;
@@ -2932,6 +3171,8 @@ let calendarRequestNumber = 0;
 const pageTitles = {
   dashboard: "Панель управления",
   candidates: "База кандидатов",
+  pipeline: "Воронка статусов",
+  objects: "Строительные объекты",
   calendar: "Календарь встреч",
   analytics: "Аналитика рекрутинга",
   add: "Добавление кандидата"
@@ -3093,16 +3334,6 @@ function makeText(tag, className, value) {
   if (className) element.className = className;
   element.textContent = value ?? "";
   return element;
-}
-
-function getTomorrow() {
-  const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0")
-  ].join("-");
 }
 
 function getTodayKey() {
@@ -3981,9 +4212,15 @@ function showPage(page) {
   window.scrollTo({ top:0, behavior:"smooth" });
 
   if (page === "candidates") renderCandidates();
+      try {
+        if (document.getElementById("page-pipeline") && document.getElementById("page-pipeline").classList.contains("active")) renderPipeline();
+        if (document.getElementById("page-objects") && document.getElementById("page-objects").classList.contains("active")) renderObjects();
+      } catch (e) {}
   if (page === "dashboard") renderTodayCandidates();
   if (page === "calendar") loadCalendar();
   if (page === "analytics") loadRecruitmentAnalytics();
+  if (page === "pipeline") renderPipeline();
+  if (page === "objects") renderObjects();
 }
 
 document.querySelectorAll(".nav-btn").forEach(button => {
@@ -4016,8 +4253,8 @@ for (let hour = 8; hour <= 19; hour++) {
 }
 
 const dateInput = document.getElementById("date");
-dateInput.value = getTomorrow();
-dateInput.min = getTomorrow();
+dateInput.value = getTodayKey();
+dateInput.min = getTodayKey();
 
 function loadObjects(selectedObject) {
   const select = document.getElementById("object");
@@ -5324,6 +5561,161 @@ function renderCandidates() {
     "Показано кандидатов: " + filtered.length + " из " + allCandidates.length;
 }
 
+
+const PIPELINE_STATUSES = [
+  "Записан",
+  "Приехал на объект",
+  "На испытательном сроке",
+  "Работает",
+  "Отказ",
+  "Не приехал",
+  "Не прошёл испытательный срок"
+];
+
+function renderPipeline() {
+  const board = document.getElementById("pipelineBoard");
+  if (!board) return;
+
+  if (typeof allCandidates === "undefined" || !allCandidates || !allCandidates.length) {
+    board.innerHTML = '<div class="empty">Нет кандидатов</div>';
+    return;
+  }
+
+  board.innerHTML = "";
+
+  PIPELINE_STATUSES.forEach(function(status) {
+    const col = document.createElement("div");
+    col.className = "pipeline-col";
+    col.dataset.status = status;
+
+    const items = allCandidates.filter(function(c) {
+      return (c.status || "Записан") === status;
+    });
+
+    var shortLabel = status;
+    if (status === "Приехал на объект") shortLabel = "Приехал";
+    if (status === "На испытательном сроке") shortLabel = "Испытательный";
+    if (status === "Не прошёл испытательный срок") shortLabel = "Не прошёл";
+
+    col.innerHTML =
+      '<div class="pipeline-col-head">' +
+        '<span class="pipeline-col-title" title="' + status + '">' + shortLabel + '</span>' +
+        '<span class="pipeline-col-count">' + items.length + '</span>' +
+      '</div>' +
+      '<div class="pipeline-col-body"></div>';
+
+    const body = col.querySelector(".pipeline-col-body");
+
+    items.forEach(function(candidate) {
+      const card = document.createElement("div");
+      card.className = "pipeline-card";
+      card.draggable = true;
+      card.dataset.row = candidate.row;
+
+      card.innerHTML =
+        '<div class="pipeline-card-name"></div>' +
+        '<div class="pipeline-card-meta"></div>' +
+        (candidate.phone ? '<a class="pipeline-card-phone"></a>' : '');
+
+      card.querySelector(".pipeline-card-name").textContent = candidate.name || "Без ФИО";
+      card.querySelector(".pipeline-card-meta").textContent =
+        (candidate.specialty || "—") + " · " + (candidate.object || "Объект не указан");
+
+      if (candidate.phone) {
+        const a = card.querySelector(".pipeline-card-phone");
+        a.textContent = candidate.phone;
+        a.href = "tel:" + String(candidate.phone).replace(/[^\d+]/g, "");
+      }
+
+      card.addEventListener("click", function(e) {
+        if (e.target.closest("a")) return;
+        if (typeof openCandidateProfile === "function") openCandidateProfile(candidate);
+      });
+
+      card.addEventListener("dragstart", function(e) {
+        card.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", JSON.stringify({
+          row: candidate.row,
+          status: candidate.status || "Записан"
+        }));
+      });
+
+      card.addEventListener("dragend", function() {
+        card.classList.remove("dragging");
+        document.querySelectorAll(".pipeline-col").forEach(function(c) {
+          c.classList.remove("drag-over");
+        });
+      });
+
+      body.appendChild(card);
+    });
+
+    body.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      col.classList.add("drag-over");
+    });
+    body.addEventListener("dragleave", function() {
+      col.classList.remove("drag-over");
+    });
+    body.addEventListener("drop", function(e) {
+      e.preventDefault();
+      col.classList.remove("drag-over");
+      try {
+        const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+        if (!data || data.status === status) return;
+        updateStatus(data.row, status, { disabled: false });
+        const found = allCandidates.find(function(x) {
+          return String(x.row) === String(data.row);
+        });
+        if (found) found.status = status;
+        setTimeout(function() { renderPipeline(); }, 350);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    board.appendChild(col);
+  });
+}
+
+function renderObjects() {
+  var grid = document.getElementById("objectsGrid");
+  if (!grid) return;
+
+  if (typeof allCandidates === "undefined" || !allCandidates || !allCandidates.length) {
+    grid.innerHTML = '<div class="empty">Пока нет кандидатов — объекты появятся после добавления</div>';
+    return;
+  }
+
+  var map = {};
+  allCandidates.forEach(function(c) {
+    var name = (c.object || "Без объекта").toString().trim() || "Без объекта";
+    if (!map[name]) map[name] = { total: 0, working: 0, arrived: 0, active: 0 };
+    map[name].total += 1;
+    var st = c.status || "";
+    if (st === "Работает" || st === "На испытательном сроке") map[name].working += 1;
+    if (st === "Приехал на объект") map[name].arrived += 1;
+    if (st === "Новый" || st === "Записан") map[name].active += 1;
+  });
+
+  var entries = Object.keys(map).map(function(k) { return [k, map[k]]; });
+  entries.sort(function(a, b) { return b[1].total - a[1].total; });
+
+  grid.innerHTML = entries.map(function(pair) {
+    var name = pair[0], s = pair[1];
+    var safe = String(name).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return '<div class="object-card">' +
+      '<div class="object-card-name">' + safe + '</div>' +
+      '<div class="object-card-stats">' +
+        '<div class="object-stat"><div class="object-stat-num">' + s.total + '</div><div class="object-stat-label">Всего</div></div>' +
+        '<div class="object-stat"><div class="object-stat-num" style="color:var(--green)">' + s.working + '</div><div class="object-stat-label">На объекте</div></div>' +
+        '<div class="object-stat"><div class="object-stat-num" style="color:var(--blue)">' + s.arrived + '</div><div class="object-stat-label">Приехали</div></div>' +
+        '<div class="object-stat"><div class="object-stat-num" style="color:var(--gold)">' + s.active + '</div><div class="object-stat-label">В работе</div></div>' +
+      '</div></div>';
+  }).join("");
+}
+
+
 function loadCandidates() {
   if (isLoadingCandidates) return;
 
@@ -5417,6 +5809,10 @@ function updateStatus(row, status, select) {
 
       renderTodayCandidates();
       renderCandidates();
+      try {
+        if (document.getElementById("page-pipeline") && document.getElementById("page-pipeline").classList.contains("active")) renderPipeline();
+        if (document.getElementById("page-objects") && document.getElementById("page-objects").classList.contains("active")) renderObjects();
+      } catch (e) {}
     },
     error => {
       select.disabled = false;
@@ -5516,9 +5912,9 @@ function openRescheduleDialog(candidate) {
     (candidate.name || "Без ФИО") + " · " +
     (candidate.phone || "Телефон не указан");
 
-  const tomorrow = getTomorrow();
-  dateField.value = tomorrow;
-  dateField.min = tomorrow;
+  const today = getTodayKey();
+dateField.value = today;
+dateField.min = today;
 
   function closeModal() {
     overlay.remove();
@@ -5832,19 +6228,48 @@ form.addEventListener("submit", event => {
         return;
       }
 
-      formMessage.textContent =
-        "Кандидат сохранён, встреча создана в календаре.";
-      formMessage.className = "message success";
+const meetingText =
+  (data.date || "") + " в " + (data.time || "");
 
-      notifySuccess(
-        (data.name || "Кандидат") + " записан на " +
-        (data.date || "") + " в " + (data.time || "") + ".",
-        "Кандидат добавлен"
-      );
+let maxStatus = "";
+
+if (result.notificationSkipped) {
+  maxStatus = "Уведомление MAX отключено.";
+} else if (result.notificationSent) {
+  maxStatus = "GitHub принял запрос на уведомление MAX.";
+} else {
+  maxStatus = "Внимание: запрос на уведомление MAX не удался.";
+}
+
+const successText =
+  "Кандидат успешно добавлен! Встреча создана в календаре. " +
+  maxStatus;
+
+formMessage.textContent = successText;
+
+formMessage.className =
+  result.notificationSent || result.notificationSkipped
+    ? "message success"
+    : "message warning";
+
+const toastText =
+  (data.name || "Кандидат") +
+  " записан на " +
+  meetingText +
+  ". " +
+  maxStatus;
+
+if (result.notificationSent) {
+  notifySuccess(toastText, "Кандидат добавлен");
+} else if (result.notificationSkipped) {
+  notifyInfo(toastText, "Кандидат добавлен");
+} else {
+  notifyWarning(toastText, "Кандидат добавлен, MAX не отправлен");
+}
 
       form.reset();
-      dateInput.value = getTomorrow();
-      dateInput.min = getTomorrow();
+      dateInput.value = getTodayKey();
+      dateInput.min = getTodayKey();
       timeSelect.value = "10:00";
       loadObjects();
       loadCandidates();
@@ -5870,8 +6295,8 @@ form.addEventListener("submit", event => {
 
 form.addEventListener("reset", () => {
   setTimeout(() => {
-    dateInput.value = getTomorrow();
-    dateInput.min = getTomorrow();
+    dateInput.value = getTodayKey();
+    dateInput.min = getTodayKey();
     timeSelect.value = "10:00";
     formMessage.className = "message";
     formMessage.textContent = "";
